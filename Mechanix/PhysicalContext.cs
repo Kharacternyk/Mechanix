@@ -153,7 +153,6 @@ namespace Mechanix
         /// <exception cref="AggregateException"> </exception>
         /// <exception cref="LockedPhysicalContextException{TEntityKey}"> </exception>
         /// <exception cref="UninitializedPhysicalContextException{TEntityKey}"> </exception>
-        /// <exception cref="Cance"
         public void Tick(double timeSpan, CancellationToken cancellationToken, bool usingMultithreading = true)
         {
             ulong count = (ulong)Math.Round(timeSpan / TimePerTick);
