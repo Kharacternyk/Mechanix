@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>7.2</LangVersion>
+    <SignAssembly>false</SignAssembly>
+    <RepositoryUrl>https://github.com/Kharacternyk/Mechanix</RepositoryUrl>
+    <Authors>https://github.com/Kharacternyk</Authors>
+    <Company>_</Company>
+    <Product />
+    <Description>Tiny .NET standart library for step-by-step evaluating moving in complex physical systems</Description>
+  </PropertyGroup>
+
+</Project>
