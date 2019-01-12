@@ -11,4 +11,8 @@
     <Description>Tiny .NET standart library for step-by-step evaluating moving in complex physical systems</Description>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>H:\SourceCode\Source\VisualStudioRepos\Mechanix\Mechanix\Mechanix.xml</DocumentationFile>
+  </PropertyGroup>
+
 </Project>

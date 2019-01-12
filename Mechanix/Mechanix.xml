@@ -1,0 +1,351 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Mechanix</name>
+    </assembly>
+    <members>
+        <member name="T:Mechanix.AxisStatus">
+            <summary>
+            Represent a position, a velocity and an acceleration of an entity within one axis
+            </summary>
+        </member>
+        <member name="T:Mechanix.ContextDependentValue`2">
+            <summary>
+            Contains value, that may change during observable context evolution
+            </summary>
+            <typeparam name="TEntityKey"> Type of entity keys in observable context </typeparam>
+            <typeparam name="TValue"> Type of stored value </typeparam>
+        </member>
+        <member name="M:Mechanix.ContextDependentValue`2.#ctor(`1,Mechanix.PhysicalContext{`0},System.Func{Mechanix.PhysicalContext{`0},`1,System.Nullable{`1}})">
+            <param name="newValueFunc">
+            Function for evaluating new <see cref="P:Mechanix.ContextDependentValue`2.Value"/> through new observable context state and old value.
+            If result is <see langword="null"/> <see cref="P:Mechanix.ContextDependentValue`2.Value"/> doesn't changes
+            </param>
+        </member>
+        <member name="T:Mechanix.ContextObserver`1">
+            <summary>
+            Represent <see cref="T:Mechanix.PhysicalContext`1"/> observer.
+            <para>
+            Does dome actions each time the <see cref="P:Mechanix.ContextObserver`1.ObservableContext"/>'s method <see cref="!:PhysicalContext&lt;TEntityKey&gt;.Tick()"/>
+            is called until is disposed
+            </para>
+            </summary>
+            <typeparam name="TEntityKey"></typeparam>
+        </member>
+        <member name="P:Mechanix.ContextObserver`1.IsActive">
+            <summary>
+            <see langword="false"/>, if this <see cref="T:Mechanix.ContextTracker`2"/> 
+            doesn't observe <see cref="T:Mechanix.PhysicalContext`1"/> anymore
+            </summary>
+        </member>
+        <member name="M:Mechanix.ContextObserver`1.Dispose">
+            <summary>
+            Unsubscribe from <see cref="P:Mechanix.ContextObserver`1.ObservableContext"/>
+            </summary>
+        </member>
+        <member name="M:Mechanix.ContextObserver`1.Observe">
+            <summary>
+            Method for handling new state of <see cref="P:Mechanix.ContextObserver`1.ObservableContext"/>
+            </summary>
+        </member>
+        <member name="T:Mechanix.ContextProgressTracker`1">
+            <summary>
+            Represents <see cref="T:Mechanix.ContextObserver`1"/> 
+            that tracks context current tick number 
+            </summary>
+            <typeparam name="TEntityKey"></typeparam>
+        </member>
+        <member name="P:Mechanix.ContextProgressTracker`1.Goal">
+            <summary>
+            Goal tick
+            </summary>
+        </member>
+        <member name="P:Mechanix.ContextProgressTracker`1.Progress">
+            <summary>
+            Number in range [0; 1] that represent progress in reaching <see cref="!:this.Goal"/>
+            </summary>
+        </member>
+        <member name="E:Mechanix.ContextProgressTracker`1.OnGoal">
+            <summary>
+            Raises when observable context reaches <see cref="P:Mechanix.ContextProgressTracker`1.Goal"/>
+            </summary>
+        </member>
+        <member name="T:Mechanix.ContextTracker`2">
+            <summary>
+            Represents a set of <see cref="T:Mechanix.PhysicalContext`1"/> 
+            determined values in certain time range
+            </summary>
+            <typeparam name="TEntityKey"> 
+            Type of <see cref="T:Mechanix.PhysicalContext`1"/> entities keys
+            </typeparam>
+            <typeparam name="TValue"> Type of observed value </typeparam>
+        </member>
+        <member name="P:Mechanix.ContextTracker`2.Item(System.UInt64)">
+            <summary>
+            Observed value on certain tick of <see cref="!:ObservableContext"/>
+            </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException"/>
+        </member>
+        <member name="M:Mechanix.ContextTracker`2.GetApproximately(System.Double)">
+            <summary>
+            Observed value on certain point of time <see cref="!:ObservableContext"/>
+            <para>
+            For better precision use navigation by ticks via <see cref="P:Mechanix.ContextTracker`2.Item(System.UInt64)"/>
+            </para>
+            </summary>
+            <param name="time"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Mechanix.FilledPhysicalContextException`1">
+            <summary>
+            Throws if entity adding requested when
+            <see cref="P:Mechanix.PhysicalContext`1.Count"/> is already equal
+            <see cref="P:Mechanix.PhysicalContext`1.Capacity"/>
+            </summary>
+        </member>
+        <member name="P:Mechanix.FilledPhysicalContextException`1.Context">
+            <summary>
+            <see cref="T:Mechanix.PhysicalContext`1"/> that invoke this exception
+            </summary>
+        </member>
+        <member name="T:Mechanix.LockedPhysicalContextException`1">
+            <summary>
+            Throws when change of <see cref="T:Mechanix.PhysicalContext`1"/> 
+            state is requsted while <see cref="!:PhysicalContext&lt;TEntityKey&gt;.Tick()"/> is executed
+            </summary>
+            <typeparam name="TEntityKey"> Type of keys </typeparam>
+        </member>
+        <member name="P:Mechanix.LockedPhysicalContextException`1.Context">
+            <summary>
+            <see cref="T:Mechanix.PhysicalContext`1"/> that invoke this exception
+            </summary>
+        </member>
+        <member name="T:Mechanix.UnexistingEntityException`1">
+            <summary>
+            Throws when unexisting entity in a <see cref="T:Mechanix.PhysicalContext`1"/> is tried to be accesed
+            </summary>
+            <typeparam name="TEntityKey"> Type of keys </typeparam>
+        </member>
+        <member name="P:Mechanix.UnexistingEntityException`1.Context">
+            <summary>
+            <see cref="T:Mechanix.PhysicalContext`1"/> that invoke this exception
+            </summary>
+        </member>
+        <member name="P:Mechanix.UnexistingEntityException`1.EntityKey">
+            <summary>
+            Key that points to unexisting entity;
+            </summary>
+        </member>
+        <member name="T:Mechanix.UninitializedPhysicalContextException`1">
+            <summary>
+            Throws when <see cref="M:Mechanix.PhysicalContext`1.Tick(System.Boolean)"/>
+            is called while entities count is lesser then capacity 
+            </summary>
+        </member>
+        <member name="P:Mechanix.UninitializedPhysicalContextException`1.Context">
+            <summary>
+            <see cref="T:Mechanix.PhysicalContext`1"/> that invoke this exception
+            </summary>
+        </member>
+        <member name="T:Mechanix.Force">
+            <summary>
+            Represent a physic force value within the three dimensional world
+            </summary>
+        </member>
+        <member name="P:Mechanix.Force.Value">
+            <summary>
+            Full value of Force within the three dimensional world
+            </summary>
+        </member>
+        <member name="T:Mechanix.Laws.DragLaw">
+            <summary>
+            Factory for forces obeyed by the drag law: fluid resistance proportional to square of velocity
+            </summary>
+        </member>
+        <member name="M:Mechanix.Laws.DragLaw.Eval(Mechanix.PointMass@,System.Double)">
+            <summary>
+            Get force value from these parameters
+            </summary>
+        </member>
+        <member name="M:Mechanix.Laws.DragLaw.GetLaw``1(``0,System.Double)">
+            <summary>
+            Get Stokes' force evaluation law from these params
+            </summary>
+        </member>
+        <member name="T:Mechanix.Laws.GravityLaw">
+            <summary>
+            Factory for forces obeyed by the gravity law
+            </summary>
+        </member>
+        <member name="M:Mechanix.Laws.GravityLaw.Eval(Mechanix.PointMass@,Mechanix.PointMass@,System.Double)">
+            <summary>
+            Get force value from these parameters
+            </summary>
+        </member>
+        <member name="M:Mechanix.Laws.GravityLaw.GetLaw``1(``0,``0,System.Double)">
+            <summary>
+            Get gravity force evaluation law from these params
+            </summary>
+        </member>
+        <member name="T:Mechanix.Laws.HookesLaw">
+            <summary>
+            Factory for forces obeyed by the Hooke's law: the force value is propotional to the extension of distance
+            </summary>
+        </member>
+        <member name="M:Mechanix.Laws.HookesLaw.Eval(Mechanix.PointMass@,Mechanix.PointMass@,System.Double,System.Double)">
+            <summary>
+            Get force value from these parameters
+            </summary>
+        </member>
+        <member name="M:Mechanix.Laws.HookesLaw.GetLaw``1(``0,``0,System.Double,System.Double)">
+            <summary>
+            Get Hooke's force evaluation law from these params
+            </summary>
+        </member>
+        <member name="T:Mechanix.Laws.RadialCollisionLaw">
+            <summary>
+            Factory for forces, that occurre when one entity is too close to other entity.
+            Proportional to deformation
+            </summary>
+        </member>
+        <member name="M:Mechanix.Laws.RadialCollisionLaw.Eval(Mechanix.PointMass@,Mechanix.PointMass@,System.Double,System.Double)">
+            <summary>
+            Get force value from these parameters
+            </summary>
+            <param name="criticalDistance">
+            If distance between entities is smaller than this, than force occurred 
+            </param>
+        </member>
+        <member name="T:Mechanix.Laws.StokesDragLaw">
+            <summary>
+            Factory for forces obeyed by the Stokes' law: fluid resistance proportional to velocity
+            </summary>
+        </member>
+        <member name="M:Mechanix.Laws.StokesDragLaw.Eval(Mechanix.PointMass@,System.Double)">
+            <summary>
+            Get force value from these parameters
+            </summary>
+        </member>
+        <member name="M:Mechanix.Laws.StokesDragLaw.GetLaw``1(``0,System.Double)">
+            <summary>
+            Get Stokes' force evaluation law from these params
+            </summary>
+        </member>
+        <member name="T:Mechanix.PhysicalContext`1">
+            <summary>
+            Represents a set of mutable <see cref="T:Mechanix.PointMass"/> entities, that is obeyed by the sets of force evaluation laws
+            </summary>
+            <typeparam name="TEntityKey"></typeparam>
+        </member>
+        <member name="P:Mechanix.PhysicalContext`1.Capacity">
+            <summary>
+            Required number of entities to begin simulation
+            </summary>
+        </member>
+        <member name="P:Mechanix.PhysicalContext`1.IsFilled">
+            <summary>
+            <see langword="true"/> if context is filled and simulation is allowed
+            </summary>
+        </member>
+        <member name="P:Mechanix.PhysicalContext`1.TimePerTick">
+            <summary>
+            A period of time, during that all force values are considered to be uniform
+            </summary>
+        </member>
+        <member name="P:Mechanix.PhysicalContext`1.Ticks">
+            <summary>
+            Count of <see cref="!:Tick()"/> calls
+            </summary>
+        </member>
+        <member name="P:Mechanix.PhysicalContext`1.Timer">
+            <summary>
+            <para>
+            Time in the context passed since this <see cref="T:Mechanix.PhysicalContext`1"/> was created.
+            </para>
+            Each time the method <see cref="!:Tick()"/> is called, 
+            <see cref="P:Mechanix.PhysicalContext`1.Timer"/> is increased by <see cref="P:Mechanix.PhysicalContext`1.TimePerTick" />
+            </summary>
+        </member>
+        <member name="E:Mechanix.PhysicalContext`1.OnTick">
+            <summary>
+            Occurres each time the <see cref="!:Tick()"/> method is called
+            </summary>
+            <remarks>
+            This event raises before context is unlocked, 
+            so <see cref="E:Mechanix.PhysicalContext`1.OnTick"/> handlers can't call <see cref="!:Tick()"/> method
+            </remarks>
+        </member>
+        <member name="P:Mechanix.PhysicalContext`1.Item(`0)">
+            <summary>
+            A <see cref="T:Mechanix.PointMass"/> entity with key <paramref name="entityKey"/>
+            </summary>
+            <exception cref="T:Mechanix.UnexistingEntityException`1">
+            Throws, if entity with this key hasn't been added to this context yet
+            </exception>
+        </member>
+        <member name="M:Mechanix.PhysicalContext`1.AddEntity(`0,Mechanix.PointMass@,System.Func{Mechanix.PhysicalContext{`0},Mechanix.Force}[])">
+            <summary>
+            Adds <see cref="T:Mechanix.PointMass"/> entity to this context and binds some force evaluation laws, that affect it
+            </summary>
+        </member>
+        <member name="M:Mechanix.PhysicalContext`1.Tick(System.Double,System.Boolean)">
+            <summary>
+            Updates all entities as <paramref name="timeSpan"/> was wasted
+            </summary>
+            <param name="usingMultithreading">
+            If <see langword="true"/>, then calculating next 
+            state of entities will be paralleled 
+            (and exceptions that have occured while force values evaluating will be wrapped into <see cref="T:System.AggregateException"/>)
+            </param>
+            <exception cref="T:System.AggregateException"> </exception>
+            <exception cref="T:Mechanix.LockedPhysicalContextException`1"> </exception>
+            <exception cref="T:Mechanix.UninitializedPhysicalContextException`1"> </exception>
+        </member>
+        <member name="M:Mechanix.PhysicalContext`1.Tick(System.Double,System.Threading.CancellationToken,System.Boolean)">
+            <summary>
+            Updates all entities as <paramref name="timeSpan"/> was wasted
+            </summary>
+            <param name="usingMultithreading">
+            If <see langword="true"/>, then calculating next 
+            state of entities will be paralleled 
+            (and exceptions that have occured while force values evaluating will be wrapped into <see cref="T:System.AggregateException"/>)
+            </param>
+            <exception cref="T:System.AggregateException"> </exception>
+            <exception cref="T:Mechanix.LockedPhysicalContextException`1"> </exception>
+            <exception cref="T:Mechanix.UninitializedPhysicalContextException`1"> </exception>
+        </member>
+        <member name="M:Mechanix.PhysicalContext`1.Tick(System.Boolean)">
+            <summary>
+            Updates all entities as <see cref="P:Mechanix.PhysicalContext`1.TimePerTick"/> was wasted
+            </summary>
+            <param name="usingMultithreading">
+            If <see langword="true"/>, then calculating next 
+            state of entities will be paralleled 
+            (and exceptions that have occured while force values evaluating will be wrapped into <see cref="T:System.AggregateException"/>)
+            </param>
+            <exception cref="T:System.AggregateException"> </exception>
+            <exception cref="T:Mechanix.LockedPhysicalContextException`1"> </exception>
+            <exception cref="T:Mechanix.UninitializedPhysicalContextException`1"> </exception>
+        </member>
+        <member name="T:Mechanix.PointMass">
+            <summary>
+            Represents a point mass entity, that is obeyed by the second law of Newton
+            </summary>
+        </member>
+        <member name="M:Mechanix.PointMass.Next(System.Double,Mechanix.Force[])">
+            <summary>
+            Returns <see cref="T:Mechanix.PointMass"/> entity, 
+            that represents this entity after a period of time
+             <paramref name="dt"/> and forces <paramref name="forcesAttached"/>.
+            </summary>
+            <param name="dt">
+            A period of time, during that all components are considered
+            to be uniform
+            </param>
+            <param name="forcesAttached">
+            Set of <see cref="T:Mechanix.Force"/> values, that have impact on this entity
+            </param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
