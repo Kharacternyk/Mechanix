@@ -25,7 +25,9 @@ namespace Mechanix.Test
             bool goal = false;
             tracker.OnGoal += (c, e) => goal = true;
 
-            context.Tick(8);
+            context.Tick(4);
+            AreEqual(0.5, tracker.Progress);
+            context.Tick(4);
             AreEqual(1, tracker.Progress);
             IsFalse(tracker.IsActive);
             IsTrue(goal);

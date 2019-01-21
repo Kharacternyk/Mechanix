@@ -23,7 +23,7 @@ namespace Mechanix
         /// <summary>
         /// Number in range [0; 1] that represent progress in reaching <see cref="Goal"/>
         /// </summary>
-        public double Progress => (LastObservedTick - ObservationBeginTick) / (Goal - ObservationBeginTick);
+        public double Progress => ((double)(LastObservedTick - ObservationBeginTick)) / ((double)(Goal - ObservationBeginTick));
 
         /// <summary>
         /// Raises when observable context reaches <see cref="Goal"/>
