@@ -50,7 +50,7 @@
         </member>
         <member name="T:Mechanix.ContextProgressTracker`1">
             <summary>
-            Represents <see cref="T:Mechanix.ContextObserver`1"/> 
+            Represents self-disposing <see cref="T:Mechanix.ContextObserver`1"/> 
             that tracks context current tick number 
             </summary>
             <typeparam name="TEntityKey"></typeparam>
@@ -62,12 +62,17 @@
         </member>
         <member name="P:Mechanix.ContextProgressTracker`1.Progress">
             <summary>
-            Number in range [0; 1] that represent progress in reaching <see cref="!:this.Goal"/>
+            Number in range [0; 1] that represent progress in reaching <see cref="P:Mechanix.ContextProgressTracker`1.Goal"/>
             </summary>
         </member>
         <member name="E:Mechanix.ContextProgressTracker`1.OnGoal">
             <summary>
             Raises when observable context reaches <see cref="P:Mechanix.ContextProgressTracker`1.Goal"/>
+            </summary>
+        </member>
+        <member name="E:Mechanix.ContextProgressTracker`1.OnCheckPoint">
+            <summary>
+            Raises when observable context reaches one of <see cref="P:Mechanix.ContextProgressTracker`1.CheckPoints"/>>
             </summary>
         </member>
         <member name="T:Mechanix.ContextTracker`2">
