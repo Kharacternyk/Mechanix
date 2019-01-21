@@ -34,19 +34,24 @@ namespace Mechanix.Test
         [TestMethod]
         public void TestCheckPoints()
         {
-            var context = new PhysicalContext<int>(1, 1);
+            var context = new PhysicalContext<int>(0.5, 1);
             context.AddEntity(0, new PointMass());
 
             context.Tick();
+
             ThrowsException<ArgumentOutOfRangeException>(() => new ContextProgressTracker<int>(context, 10, 0));
+            ThrowsException<ArgumentOutOfRangeException>(() => new ContextProgressTracker<int>(context, 10, 12));
 
             context.Tick();
-            var tracker = new ContextProgressTracker<int>(context, 10, 3, 5, 12);
-            var reached = 0;
-            tracker.OnCheckPoint += (c, _) => reached++;
+            var trackerInt = new ContextProgressTracker<int>(context, 10, 3, 9);
+            var trackerDouble = ContextProgressTracker<int>.FromTime(context, 10, 3, 9);
+            int reachedInt = 0, reachedDouble = 0;
+            trackerInt.OnCheckPoint += (c, _) => reachedInt++;
+            trackerDouble.OnCheckPoint += (c, _) => reachedDouble++;
 
-            context.Tick(12);
-            AreEqual(2, reached);
+            for (int i = 0; i < 12; i++) context.Tick();
+            AreEqual(2, reachedInt);
+            AreEqual(1, reachedDouble);
         }
     }
 }

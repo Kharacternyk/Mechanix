@@ -43,20 +43,37 @@ namespace Mechanix
         )
         : base(observableContext)
         {
-            if (checkPoints.Any(point => observableContext.Ticks > point))
+            if (checkPoints.Any(point => observableContext.Ticks > point || point > goalTick))
             {
                 throw new ArgumentOutOfRangeException
                 (
                     $"Can't create ContextProgressTracker with checkpoints {CheckPoints}" +
-                    $"because one or more of checkpoints are already less then observable" +
-                    $"context current tick ({observableContext.Ticks})"
+                    $"because one or more of checkpoints are already less than observable" +
+                    $"context current tick ({observableContext.Ticks}) or bigger than goal tick ({goalTick})"
                 );
             }
             _checkPoints = checkPoints;
             Array.Sort(_checkPoints);
             _currentCheckPointIndex = 0;
             Goal = goalTick;
+            Observe();
         }
+
+        public static ContextProgressTracker<TEntityKey> FromTime
+        (
+            PhysicalContext<TEntityKey> observableContext,
+            double goalTime,
+            params double[] checkPoints
+        )        
+        {
+            return new ContextProgressTracker<TEntityKey>
+            (
+                observableContext,
+                (ulong)Math.Round(goalTime / observableContext.TimePerTick),
+                (from c in checkPoints select (ulong)(Math.Round(c / observableContext.TimePerTick))).ToArray()
+            );
+        }
+        
 
         protected override void Observe()
         {
