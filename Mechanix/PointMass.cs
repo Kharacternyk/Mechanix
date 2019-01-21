@@ -8,37 +8,37 @@ namespace Mechanix
     /// </summary>
     public readonly struct PointMass : IEquatable<PointMass>
     {
-        //c# 7.3 don't accept 
-        //public ref readonly AxisStatus X => ref _x;
+        readonly AxisStatus _x, _y, _z;
+        public AxisStatus X => _x;
+        public AxisStatus Y => _y;
+        public AxisStatus Z => _z;
 
-        public AxisStatus X { get; }
-        public AxisStatus Y { get; } 
-        public AxisStatus Z { get; }
-        public double Mass { get; }
+        readonly double _mass;
+        public double Mass => _mass;
 
         public double Velocity
         {
-            get => Math.Sqrt(X.Velocity * X.Velocity + Y.Velocity * Y.Velocity + Z.Velocity * Z.Velocity);
+            get => Math.Sqrt(_x.Velocity * _x.Velocity + _y.Velocity * _y.Velocity + _z.Velocity * _z.Velocity);
         }
         public double Acceleration
         {
-            get => Math.Sqrt(X.Acceleration * X.Acceleration + Y.Acceleration * Y.Acceleration + Z.Acceleration * Z.Acceleration);
+            get => Math.Sqrt(_x.Acceleration * _x.Acceleration + _y.Acceleration * _y.Acceleration + _z.Acceleration * _z.Acceleration);
         }
 
         public PointMass(in AxisStatus x, in AxisStatus y, in AxisStatus z, double mass)
         {
-            X = x;
-            Y = y;
-            Z = z;
-            Mass = mass;
+            _x = x;
+            _y = y;
+            _z = z;
+            _mass = mass;
         }
 
         public PointMass(double xPosition, double yPosition, double zPosition, double mass)
         {
-            X = new AxisStatus(xPosition, 0, 0);
-            Y = new AxisStatus(yPosition, 0, 0);
-            Z = new AxisStatus(zPosition, 0, 0);
-            Mass = mass;
+            _x = new AxisStatus(xPosition, 0, 0);
+            _y = new AxisStatus(yPosition, 0, 0);
+            _z = new AxisStatus(zPosition, 0, 0);
+            _mass = mass;
         }
 
         /// <summary>
@@ -70,9 +70,9 @@ namespace Mechanix
 
             return new PointMass
             (
-                new AxisStatus(X.Position + X.Velocity * dt, X.Velocity + X.Acceleration * dt, nextAX),
-                new AxisStatus(Y.Position + Y.Velocity * dt, Y.Velocity + Y.Acceleration * dt, nextAY),
-                new AxisStatus(Z.Position + Z.Velocity * dt, Z.Velocity + Z.Acceleration * dt, nextAZ),
+                new AxisStatus(_x.Position + _x.Velocity * dt, _x.Velocity + _x.Acceleration * dt, nextAX),
+                new AxisStatus(_y.Position + _y.Velocity * dt, _y.Velocity + _y.Acceleration * dt, nextAY),
+                new AxisStatus(_z.Position + _z.Velocity * dt, _z.Velocity + _z.Acceleration * dt, nextAZ),
                 Mass
             );
         }
@@ -84,25 +84,25 @@ namespace Mechanix
 
         public bool Equals(PointMass other)
         {
-            return X.Equals(other.X) &&
-                   Y.Equals(other.Y) &&
-                   Z.Equals(other.Z) &&
+            return X.Equals(other._x) &&
+                   Y.Equals(other._y) &&
+                   Z.Equals(other._z) &&
                    Mass == other.Mass;
         }
 
         public override int GetHashCode()
         {
             var hashCode = -1636101175;
-            hashCode = hashCode * -1521134295 + EqualityComparer<AxisStatus>.Default.GetHashCode(X);
-            hashCode = hashCode * -1521134295 + EqualityComparer<AxisStatus>.Default.GetHashCode(Y);
-            hashCode = hashCode * -1521134295 + EqualityComparer<AxisStatus>.Default.GetHashCode(Z);
+            hashCode = hashCode * -1521134295 + EqualityComparer<AxisStatus>.Default.GetHashCode(_x);
+            hashCode = hashCode * -1521134295 + EqualityComparer<AxisStatus>.Default.GetHashCode(_y);
+            hashCode = hashCode * -1521134295 + EqualityComparer<AxisStatus>.Default.GetHashCode(_z);
             hashCode = hashCode * -1521134295 + Mass.GetHashCode();
             return hashCode;
         }
 
         public override string ToString()
         {
-            return $"PointMass[x: {X}; y: {Y}; z: {Z}; Mass = {Mass}]";
+            return $"PointMass[x: {_x}; y: {_y}; z: {_z}; Mass = {_mass}]";
         }
 
         public static bool operator ==(PointMass mass1, PointMass mass2)

@@ -18,25 +18,29 @@ namespace Mechanix
         readonly Dictionary<TEntityKey, int> _indexes;
         bool _isLocked;
 
+        readonly int _capacity;
         /// <summary>
         /// Required number of entities to begin simulation
         /// </summary>
-        public int Capacity { get; }
+        public int Capacity => _capacity;
 
+        bool _isFilled;
         /// <summary>
         /// <see langword="true"/> if context is filled and simulation is allowed
         /// </summary>
-        public bool IsFilled { get; private set; }
+        public bool IsFilled => _isFilled;
 
+        readonly double _timePerTick;
         /// <summary>
         /// A period of time, during that all force values are considered to be uniform
         /// </summary>
-        public double TimePerTick { get; }
+        public double TimePerTick => _timePerTick;
 
+        ulong _ticks;
         /// <summary>
-        /// Count of <see cref="Tick()"/> calls
+        /// Count of <see cref="Tick(bool)"/> calls
         /// </summary>
-        public ulong Ticks { get; private set; }
+        public ulong Ticks => _ticks;
 
         /// <summary>
         /// <para>
@@ -96,16 +100,16 @@ namespace Mechanix
         public PhysicalContext(double timePerTick, int capacity)
         {
             if (capacity < 0) throw new ArgumentOutOfRangeException("Context capacity can't be < 0", nameof(capacity));
-            Capacity = capacity;
+            _capacity = capacity;
 
-            TimePerTick = timePerTick;
-            Ticks = 0;
+            _timePerTick = timePerTick;
+            _ticks = 0;
             _indexes = new Dictionary<TEntityKey, int>(capacity);
             _forceValues = new Force[capacity][];
             _entities = new PointMass[capacity];
             _forceEvaluationLaws = new Func<PhysicalContext<TEntityKey>, Force>[capacity][];
             _isLocked = false;
-            IsFilled = false;
+            _isFilled = false;
         }
 
         /// <summary>
@@ -122,7 +126,7 @@ namespace Mechanix
             _forceValues[index] = new Force[forceEvaluationLaws.Length];
 
             _indexes.Add(key, index);
-            if (_indexes.Count == Capacity) IsFilled = true;
+            if (_indexes.Count == Capacity) _isFilled = true;
         }
 
         /// <summary>
@@ -138,7 +142,7 @@ namespace Mechanix
         /// <exception cref="UninitializedPhysicalContextException{TEntityKey}"> </exception>
         public void Tick(double timeSpan, bool usingMultithreading = true)
         {
-            ulong count = (ulong)Math.Round(timeSpan / TimePerTick);
+            ulong count = (ulong)Math.Round(timeSpan / _timePerTick);
             for (ulong t = 0; t < count; t++) Tick(usingMultithreading);
         }
 
@@ -155,7 +159,7 @@ namespace Mechanix
         /// <exception cref="UninitializedPhysicalContextException{TEntityKey}"> </exception>
         public void Tick(double timeSpan, CancellationToken cancellationToken, bool usingMultithreading = true)
         {
-            ulong count = (ulong)Math.Round(timeSpan / TimePerTick);
+            ulong count = (ulong)Math.Round(timeSpan / _timePerTick);
             if (cancellationToken.CanBeCanceled)
             {
                 for (ulong t = 0; t < count; t++)
@@ -180,11 +184,11 @@ namespace Mechanix
         /// <exception cref="UninitializedPhysicalContextException{TEntityKey}"> </exception>
         public void Tick(bool usingMultithreading = true)
         {
-            if (!IsFilled) throw new UninitializedPhysicalContextException<TEntityKey>(this);
+            if (!_isFilled) throw new UninitializedPhysicalContextException<TEntityKey>(this);
             if (_isLocked) throw new LockedPhysicalContextException<TEntityKey>(this);
 
             _isLocked = true;
-            var count = Capacity;
+            var count = _capacity;
             try
             {
                 if (usingMultithreading)
@@ -227,7 +231,7 @@ namespace Mechanix
                     count,
                     c =>
                     {
-                        _entities[c] = _entities[c].Next(TimePerTick, _forceValues[c]);
+                        _entities[c] = _entities[c].Next(_timePerTick, _forceValues[c]);
                     }
                 );
             }
@@ -235,11 +239,11 @@ namespace Mechanix
             {
                 for (int c = 0; c < count; ++c)
                 {
-                    _entities[c] = _entities[c].Next(TimePerTick, _forceValues[c]);
+                    _entities[c] = _entities[c].Next(_timePerTick, _forceValues[c]);
                 }
             }
 
-            Ticks++;
+            _ticks++;
             try
             {
                 OnTick?.Invoke(this, new ContextChangedEventArgs());
