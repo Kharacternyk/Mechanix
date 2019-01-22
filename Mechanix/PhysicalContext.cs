@@ -58,7 +58,7 @@ namespace Mechanix
         /// This event raises before context is unlocked, 
         /// so <see cref="OnTick"/> handlers can't call <see cref="Tick()"/> method
         /// </remarks>
-        public event EventHandler<ContextChangedEventArgs> OnTick;
+        public event EventHandler<EventArgs> OnTick;
 
         public IEnumerable<TEntityKey> Keys => _indexes.Keys;
 
@@ -246,7 +246,7 @@ namespace Mechanix
             _ticks++;
             try
             {
-                OnTick?.Invoke(this, new ContextChangedEventArgs());
+                OnTick?.Invoke(this, EventArgs.Empty);
             }
             finally
             {
