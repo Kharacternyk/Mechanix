@@ -43,7 +43,7 @@ namespace Mechanix
             ObservableContext.OnTick += OnTick;
         }
 
-        private void OnTick(object sender, ContextChangedEventArgs e)
+        private void OnTick(object sender, EventArgs e)
         {
             Observe();
             ++LastObservedTick;

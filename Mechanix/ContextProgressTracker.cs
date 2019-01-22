@@ -78,10 +78,13 @@ namespace Mechanix
         protected override void Observe()
         {
             var tick = ObservableContext.Ticks;
-            if (_checkPoints != null && _currentCheckPointIndex < _checkPoints.Length && tick == _checkPoints[_currentCheckPointIndex])
+            if (_checkPoints != null)
             {
-                OnCheckPoint?.Invoke(this, EventArgs.Empty);
-                ++_currentCheckPointIndex;
+                while (_currentCheckPointIndex < _checkPoints.Length && tick == _checkPoints[_currentCheckPointIndex])
+                {
+                    OnCheckPoint?.Invoke(this, EventArgs.Empty);
+                    ++_currentCheckPointIndex;
+                }
             }
             if (tick == Goal)
             {
