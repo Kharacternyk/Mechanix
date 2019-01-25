@@ -81,5 +81,26 @@ namespace Mechanix.Test
             IsTrue(tracker.Keys.Contains<ulong>(1));
             IsFalse(tracker.Keys.Contains<ulong>(2));
         }
+
+        [TestMethod]
+        public void TestInterval()
+        {
+            ulong[] intervals = {1, 3, 11, 100};
+            foreach (var i in intervals)
+            {
+                var context = new PhysicalContext<int>(1, 1);
+                var entity = new PointMass(new AxisStatus(0, 1, 0), new AxisStatus(1, 0, 0), new AxisStatus(0, 0, 0), 1);
+                context.AddEntity(0, entity);
+
+                var tracker = new ContextTracker<int, double>(context, c => c[0].X.Position, i);
+
+                context.Tick(42);
+                AreEqual((int)(42 / i + 1), tracker.Count);
+                ThrowsException<ArgumentOutOfRangeException>(() => tracker[43]);
+                if (i > 1) ThrowsException<ArgumentOutOfRangeException>(() => tracker[i + 1]);
+
+                var noException = tracker[0];
+            }
+        }
     }
 }

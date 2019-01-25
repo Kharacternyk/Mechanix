@@ -85,6 +85,11 @@
             </typeparam>
             <typeparam name="TValue"> Type of observed value </typeparam>
         </member>
+        <member name="P:Mechanix.ContextTracker`2.Interval">
+            <summary>
+            Represents interval of the data recording (from observable context)
+            </summary>
+        </member>
         <member name="P:Mechanix.ContextTracker`2.Item(System.UInt64)">
             <summary>
             Observed value on certain tick of <see cref="!:ObservableContext"/>
