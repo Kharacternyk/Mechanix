@@ -37,17 +37,20 @@ namespace Mechanix
             _values = new List<TValue>();
 
             _currTimer = 0;
-            Observe();
+            _values.Add(_func(ObservableContext));
         }
 
         protected override void Observe()
         {
-            if (_currTimer % _interval == 0)
+            if (_currTimer == _interval - 1)
             {
                 _values.Add(_func(ObservableContext));
                 _currTimer = 0;
             }
-            ++_currTimer;
+            else
+            {
+                ++_currTimer;
+            }
         }
 
         public IEnumerable<ulong> Keys
