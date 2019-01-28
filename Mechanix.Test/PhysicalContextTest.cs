@@ -344,5 +344,38 @@ namespace Mechanix.Test
             AreEqual(entity.Next(0.23, new Force(0, 1, 0)), context[0]);
             AreEqual(1u, context.Ticks);
         }
+
+        [TestMethod]
+        public void TestTickPredicate()
+        {
+            var context = new PhysicalContext<int>(1, 1);
+            var entity = new PointMass
+            (
+                new AxisStatus(1, 0, 0),
+                new AxisStatus(0, 1, 0),
+                new AxisStatus(0, 0, 1),
+                1
+            );
+            context.AddEntity
+            (
+                0,
+                entity
+            );
+
+            var source = new System.Threading.CancellationTokenSource();
+            source.Cancel();
+
+            context.Tick(1, _ => !source.IsCancellationRequested);
+            AreEqual(entity, context[0]);
+            AreEqual(0u, context.Ticks);
+
+            var isGoalReached = context.Tick(10, c => c.Ticks < 5);
+            AreEqual(5u, context.Ticks);
+            IsFalse(isGoalReached);
+
+            isGoalReached = context.Tick(10, c => true);
+            AreEqual(15u, context.Ticks);
+            IsTrue(isGoalReached);
+        }
     }
 }

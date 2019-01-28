@@ -157,6 +157,7 @@ namespace Mechanix
         /// <exception cref="AggregateException"> </exception>
         /// <exception cref="LockedPhysicalContextException{TEntityKey}"> </exception>
         /// <exception cref="UninitializedPhysicalContextException{TEntityKey}"> </exception>
+        [Obsolete("Use Tick(double timeSpan, Func<...> tickWhilePredicate)")]
         public void Tick(double timeSpan, CancellationToken cancellationToken, bool usingMultithreading = true)
         {
             ulong count = (ulong)Math.Round(timeSpan / _timePerTick);
@@ -169,6 +170,34 @@ namespace Mechanix
                 }
             }
             else Tick(timeSpan, usingMultithreading);
+        }
+
+        /// <summary>
+        /// Updates all entities as <paramref name="timeSpan"/> was wasted
+        /// </summary>
+        /// <param name="usingMultithreading">
+        /// If <see langword="true"/>, then calculating next 
+        /// state of entities will be paralleled 
+        /// (and exceptions that have occured while force values evaluating will be wrapped into <see cref="AggregateException"/>)
+        /// </param>
+        /// <param name="tickWhilePredicate">
+        /// Execution continues only while this predicate result is true. Evals after each <see cref="TimePerTick"/> wasted.
+        /// </param>
+        /// <returns>
+        /// Whether <paramref name="tickWhilePredicate"/> was <see langword="true"/> all the <paramref name="timeSpan"/>
+        /// </returns>
+        /// <exception cref="AggregateException"> </exception>
+        /// <exception cref="LockedPhysicalContextException{TEntityKey}"> </exception>
+        /// <exception cref="UninitializedPhysicalContextException{TEntityKey}"> </exception>
+        public bool Tick(double timeSpan, Func<PhysicalContext<TEntityKey>, bool> tickWhilePredicate, bool usingMultithreading = true)
+        {
+            ulong count = (ulong)Math.Round(timeSpan / _timePerTick);
+            for (ulong t = 0; t < count; t++)
+            {
+                if (!tickWhilePredicate(this)) return false;
+                Tick(usingMultithreading);
+            }
+            return true;
         }
 
         /// <summary>

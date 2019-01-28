@@ -324,6 +324,25 @@
             <exception cref="T:Mechanix.LockedPhysicalContextException`1"> </exception>
             <exception cref="T:Mechanix.UninitializedPhysicalContextException`1"> </exception>
         </member>
+        <member name="M:Mechanix.PhysicalContext`1.Tick(System.Double,System.Func{Mechanix.PhysicalContext{`0},System.Boolean},System.Boolean)">
+            <summary>
+            Updates all entities as <paramref name="timeSpan"/> was wasted
+            </summary>
+            <param name="usingMultithreading">
+            If <see langword="true"/>, then calculating next 
+            state of entities will be paralleled 
+            (and exceptions that have occured while force values evaluating will be wrapped into <see cref="T:System.AggregateException"/>)
+            </param>
+            <param name="tickWhilePredicate">
+            Execution continues only while this predicate result is true. Evals after each <see cref="P:Mechanix.PhysicalContext`1.TimePerTick"/> wasted.
+            </param>
+            <returns>
+            Whether <paramref name="tickWhilePredicate"/> was <see langword="true"/> all the <paramref name="timeSpan"/>
+            </returns>
+            <exception cref="T:System.AggregateException"> </exception>
+            <exception cref="T:Mechanix.LockedPhysicalContextException`1"> </exception>
+            <exception cref="T:Mechanix.UninitializedPhysicalContextException`1"> </exception>
+        </member>
         <member name="M:Mechanix.PhysicalContext`1.Tick(System.Boolean)">
             <summary>
             Updates all entities as <see cref="P:Mechanix.PhysicalContext`1.TimePerTick"/> was wasted
