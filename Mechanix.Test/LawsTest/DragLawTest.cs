@@ -11,7 +11,7 @@ namespace Mechanix.Laws.Test
         public void TestLaw1()
         {
             var context = new PhysicalContext<int>(1, 2);
-            context.AddEntity(0, new PointMass(new AxisStatus(0, 3, 0), new AxisStatus(0, 0, 0), new AxisStatus(0, 4, 0), 0));
+            context.AddEntity(0, new PointMass(new AxisStatus(0, 3), new AxisStatus(0, 0), new AxisStatus(0, 4), 0));
             context.AddEntity(1, new PointMass(3, 4, 0, 0));
 
             var law = DragLaw.GetLaw(0, 10);

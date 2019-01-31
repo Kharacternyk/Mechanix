@@ -29,9 +29,9 @@ namespace Example
             //Adding entity
             var freeFallEntity = new PointMass
             (
-                x: new AxisStatus(3.4), //Position = 3.4, zero velocity and zero acceleration
-                y: new AxisStatus(0, 10), //Zero position, velocity = 10, zero acceleration
-                z: new AxisStatus(1.1, 2, 1000), //Position = 1.1, Velocity = 2, Acceleration = 1000
+                x: new AxisStatus(3.4), //Position = 3.4, zero velocity
+                y: new AxisStatus(0, 10), //Zero position, velocity = 10
+                z: new AxisStatus(1.1, 2), //Position = 1.1, Velocity = 2
                 mass: 77.7
             );
             context.AddEntity

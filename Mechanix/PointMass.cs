@@ -20,10 +20,6 @@ namespace Mechanix
         {
             get => Math.Sqrt(_x.Velocity * _x.Velocity + _y.Velocity * _y.Velocity + _z.Velocity * _z.Velocity);
         }
-        public double Acceleration
-        {
-            get => Math.Sqrt(_x.Acceleration * _x.Acceleration + _y.Acceleration * _y.Acceleration + _z.Acceleration * _z.Acceleration);
-        }
 
         public PointMass(in AxisStatus x, in AxisStatus y, in AxisStatus z, double mass)
         {
@@ -35,9 +31,9 @@ namespace Mechanix
 
         public PointMass(double xPosition, double yPosition, double zPosition, double mass)
         {
-            _x = new AxisStatus(xPosition, 0, 0);
-            _y = new AxisStatus(yPosition, 0, 0);
-            _z = new AxisStatus(zPosition, 0, 0);
+            _x = new AxisStatus(xPosition);
+            _y = new AxisStatus(yPosition);
+            _z = new AxisStatus(zPosition);
             _mass = mass;
         }
 
@@ -70,9 +66,9 @@ namespace Mechanix
 
             return new PointMass
             (
-                new AxisStatus(_x.Position + _x.Velocity * dt, _x.Velocity + _x.Acceleration * dt, nextAX),
-                new AxisStatus(_y.Position + _y.Velocity * dt, _y.Velocity + _y.Acceleration * dt, nextAY),
-                new AxisStatus(_z.Position + _z.Velocity * dt, _z.Velocity + _z.Acceleration * dt, nextAZ),
+                new AxisStatus(_x.Position + _x.Velocity * dt, _x.Velocity + nextAX * dt),
+                new AxisStatus(_y.Position + _y.Velocity * dt, _y.Velocity + nextAY * dt),
+                new AxisStatus(_z.Position + _z.Velocity * dt, _z.Velocity + nextAZ * dt),
                 Mass
             );
         }

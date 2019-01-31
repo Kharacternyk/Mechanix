@@ -13,7 +13,7 @@ namespace Mechanix.Test
         public void TestInit1()
         {
             var context = new PhysicalContext<int>(0.1, 1);
-            var entity = new PointMass(new AxisStatus(1, 3, 0), new AxisStatus(0, 0, 0), new AxisStatus(0, 0, 0), 1);
+            var entity = new PointMass(new AxisStatus(1, 3), new AxisStatus(0, 0), new AxisStatus(0, 0), 1);
             context.AddEntity(0, entity);
 
             var tracker = new ContextTracker<int, double>(context, c => c[0].X.Position);
@@ -68,7 +68,7 @@ namespace Mechanix.Test
         public void TestStoryboard()
         {
             var context = new PhysicalContext<int>(1, 1);
-            var entity = new PointMass(new AxisStatus(0, 1, 0), new AxisStatus(1, 0, 0), new AxisStatus(0, 0, 0), 1);
+            var entity = new PointMass(new AxisStatus(0, 1), new AxisStatus(1, 0), new AxisStatus(0, 0), 1);
             context.AddEntity(0, entity);
 
             var tracker = new ContextTracker<int, double>(context, c => c[0].X.Position);
@@ -89,7 +89,7 @@ namespace Mechanix.Test
             foreach (var i in intervals)
             {
                 var context = new PhysicalContext<int>(1, 1);
-                var entity = new PointMass(new AxisStatus(0, 1, 0), new AxisStatus(1, 0, 0), new AxisStatus(0, 0, 0), 1);
+                var entity = new PointMass(new AxisStatus(0, 1), new AxisStatus(1, 0), new AxisStatus(0, 0), 1);
                 context.AddEntity(0, entity);
 
                 var tracker = new ContextTracker<int, double>(context, c => c[0].X.Position, i);

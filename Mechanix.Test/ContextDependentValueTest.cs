@@ -12,7 +12,7 @@ namespace Mechanix.Test
         public void TestObserving()
         {
             var context = new PhysicalContext<int>(1, 1);
-            var entity = new PointMass(new AxisStatus(3, 0, 0), new AxisStatus(1, 1, 0), new AxisStatus(0, 0, 0), 1);
+            var entity = new PointMass(new AxisStatus(3, 0), new AxisStatus(1, 1), new AxisStatus(0, 0), 1);
             context.AddEntity(0, entity);
 
             var max0X = new ContextDependentValue<int, double>

@@ -15,9 +15,9 @@ namespace Mechanix.Test
             var context = new PhysicalContext<int>(0.1, 1);
             var entity = new PointMass
             (
-                new AxisStatus(1, 2, 0),
-                new AxisStatus(2, 3, 0),
-                new AxisStatus(3, 4, 0),
+                new AxisStatus(1, 2),
+                new AxisStatus(2, 3),
+                new AxisStatus(3, 4),
                 1
             );
             context.AddEntity
@@ -39,9 +39,9 @@ namespace Mechanix.Test
             var context = new PhysicalContext<int>(0.23, 1);
             var entity = new PointMass
             (
-                new AxisStatus(1, 0, 0),
-                new AxisStatus(0, 1, 0),
-                new AxisStatus(0, 0, 1),
+                new AxisStatus(1, 0),
+                new AxisStatus(0, 1),
+                new AxisStatus(0, 0),
                 1
             );
             context.AddEntity
@@ -63,9 +63,9 @@ namespace Mechanix.Test
             var context = new PhysicalContext<int>(0.23, 1);
             var entity = new PointMass
             (
-                new AxisStatus(1, 0, 0),
-                new AxisStatus(0, 1, 0),
-                new AxisStatus(0, 0, 1),
+                new AxisStatus(1, 0),
+                new AxisStatus(0, 1),
+                new AxisStatus(0, 0),
                 1
             );
             context.AddEntity
@@ -87,9 +87,9 @@ namespace Mechanix.Test
             var context = new PhysicalContext<int>(3, 1);
             var entity = new PointMass
             (
-                new AxisStatus(0, 1, 0),
-                new AxisStatus(0, 1, 0),
-                new AxisStatus(0, 1, 0),
+                new AxisStatus(0, 1),
+                new AxisStatus(0, 1),
+                new AxisStatus(0, 1),
                 1
             );
             context.AddEntity
@@ -113,9 +113,9 @@ namespace Mechanix.Test
             var context = new PhysicalContext<int>(1, 1);
             var entity = new PointMass
             (
-                new AxisStatus(0, 1, 0),
-                new AxisStatus(0, 1, 0),
-                new AxisStatus(0, 1, 0),
+                new AxisStatus(0, 1),
+                new AxisStatus(0, 1),
+                new AxisStatus(0, 1),
                 1
             );
 
@@ -140,16 +140,16 @@ namespace Mechanix.Test
             var context = new PhysicalContext<int>(1, 2);
             var entity1 = new PointMass
             (
-                new AxisStatus(2, 0, 0),
-                new AxisStatus(0, 0, 0),
-                new AxisStatus(0, 0, 0),
+                new AxisStatus(2, 0),
+                new AxisStatus(0, 0),
+                new AxisStatus(0, 0),
                 1
             );
             var entity2 = new PointMass
             (
-                new AxisStatus(0, 0, 0),
-                new AxisStatus(3, 0, 0),
-                new AxisStatus(0, 0, 0),
+                new AxisStatus(0, 0),
+                new AxisStatus(3, 0),
+                new AxisStatus(0, 0),
                 1
             );
 
@@ -177,16 +177,16 @@ namespace Mechanix.Test
             var context = new PhysicalContext<int>(1, 2);
             var entity1 = new PointMass
             (
-                new AxisStatus(0, 1, 0),
-                new AxisStatus(0, 1, 0),
-                new AxisStatus(0, 1, 0),
+                new AxisStatus(0, 1),
+                new AxisStatus(0, 1),
+                new AxisStatus(0, 1),
                 1
             );
             var entity2 = new PointMass
             (
-                new AxisStatus(0, 2, 0),
-                new AxisStatus(0, 2, 0),
-                new AxisStatus(0, 2, 0),
+                new AxisStatus(0, 2),
+                new AxisStatus(0, 2),
+                new AxisStatus(0, 2),
                 1
             );
 
@@ -210,14 +210,14 @@ namespace Mechanix.Test
             AreEqual(entity2, context[2]);
 
             context.Tick();
-            entity1 = entity1.Next(1, new Force(2, 2, 2));
-            entity2 = entity2.Next(1, new Force(1, 1, 1));
+            entity1 = entity1.Next(1, new Force(3, 3, 3));
+            entity2 = entity2.Next(1, new Force(3, 3, 3));
             AreEqual(entity1, context[1]);
             AreEqual(entity2, context[2]);
 
             context.Tick();
-            entity1 = entity1.Next(1, new Force(3, 3, 3));
-            entity2 = entity2.Next(1, new Force(3, 3, 3));
+            entity1 = entity1.Next(1, new Force(6, 6, 6));
+            entity2 = entity2.Next(1, new Force(6, 6, 6));
             AreEqual(entity1, context[1]);
             AreEqual(entity2, context[2]);
         }
@@ -241,16 +241,16 @@ namespace Mechanix.Test
             var context = new PhysicalContext<int>(1, 2);
             var entity1 = new PointMass
             (
-                new AxisStatus(1, 0, 0),
-                new AxisStatus(1, 0, 0),
-                new AxisStatus(1, 0, 0),
+                new AxisStatus(1, 0),
+                new AxisStatus(1, 0),
+                new AxisStatus(1, 0),
                 1
             );
             var entity2 = new PointMass
             (
-                new AxisStatus(2, 0, 0),
-                new AxisStatus(2, 0, 0),
-                new AxisStatus(2, 0, 0),
+                new AxisStatus(2, 0),
+                new AxisStatus(2, 0),
+                new AxisStatus(2, 0),
                 1
             );
             context.AddEntity(1, entity1);
@@ -260,8 +260,6 @@ namespace Mechanix.Test
                 foreach (var key in context.Keys) val += context[key].X.Position;
                 return new Force(val, val, val);
             });
-            context.Tick();
-            AreEqual(3, context[2].X.Acceleration);
         }
 
         [TestMethod]
@@ -288,9 +286,9 @@ namespace Mechanix.Test
             var context = new PhysicalContext<int>(1, 1);
             var entity = new PointMass
             (
-                new AxisStatus(0, 1, 0),
-                new AxisStatus(0, 1, 0),
-                new AxisStatus(0, 1, 0),
+                new AxisStatus(0, 1),
+                new AxisStatus(0, 1),
+                new AxisStatus(0, 1),
                 1
             );
             context.AddEntity
@@ -321,9 +319,9 @@ namespace Mechanix.Test
             var context = new PhysicalContext<int>(0.23, 1);
             var entity = new PointMass
             (
-                new AxisStatus(1, 0, 0),
-                new AxisStatus(0, 1, 0),
-                new AxisStatus(0, 0, 1),
+                new AxisStatus(1, 0),
+                new AxisStatus(0, 1),
+                new AxisStatus(0, 0),
                 1
             );
             context.AddEntity
@@ -351,9 +349,9 @@ namespace Mechanix.Test
             var context = new PhysicalContext<int>(1, 1);
             var entity = new PointMass
             (
-                new AxisStatus(1, 0, 0),
-                new AxisStatus(0, 1, 0),
-                new AxisStatus(0, 0, 1),
+                new AxisStatus(1, 0),
+                new AxisStatus(0, 1),
+                new AxisStatus(0, 0),
                 1
             );
             context.AddEntity

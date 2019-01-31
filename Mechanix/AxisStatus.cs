@@ -7,15 +7,14 @@ namespace Mechanix
     /// </summary>
     public readonly struct AxisStatus : IEquatable<AxisStatus>
     {
-        public double Position { get; }
-        public double Velocity { get; }
-        public double Acceleration { get; }
+        readonly double _pos, _vel;
+        public double Position => _pos;
+        public double Velocity => _vel;
 
-        public AxisStatus(double position, double velocity = 0, double acceleration = 0)
+        public AxisStatus(double position, double velocity = 0)
         {
-            Position = position;
-            Velocity = velocity;
-            Acceleration = acceleration;
+            _pos = position;
+            _vel = velocity;
         }
 
         public override bool Equals(object obj)
@@ -25,9 +24,8 @@ namespace Mechanix
 
         public bool Equals(AxisStatus other)
         {
-            return Position == other.Position &&
-                   Velocity == other.Velocity &&
-                   Acceleration == other.Acceleration;
+            return _pos == other._pos &&
+                   _vel == other._vel;
         }
 
         public override int GetHashCode()
@@ -35,13 +33,12 @@ namespace Mechanix
             var hashCode = 1546832041;
             hashCode = hashCode * -1521134295 + Position.GetHashCode();
             hashCode = hashCode * -1521134295 + Velocity.GetHashCode();
-            hashCode = hashCode * -1521134295 + Acceleration.GetHashCode();
             return hashCode;
         }
 
         public override string ToString()
         {
-            return $"[pos: {Position}; v: {Velocity}; a: {Acceleration}]";
+            return $"[pos: {Position}; v: {Velocity}]";
         }
 
         public static bool operator ==(AxisStatus status1, AxisStatus status2)
