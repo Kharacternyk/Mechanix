@@ -5,6 +5,7 @@ namespace Mechanix
     /// <summary>
     /// Represent a physic force value within the three dimensional world
     /// </summary>
+    [Serializable]
     public readonly struct Force : IEquatable<Force>
     {
         public static Force Zero => new Force(0, 0, 0);

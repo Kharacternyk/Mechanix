@@ -6,6 +6,7 @@ namespace Mechanix
     /// <summary>
     /// Represents a point mass entity, that is obeyed by the second law of Newton
     /// </summary>
+    [Serializable]
     public readonly struct PointMass : IEquatable<PointMass>
     {
         readonly AxisStatus _x, _y, _z;

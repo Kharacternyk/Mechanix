@@ -5,6 +5,7 @@ namespace Mechanix
     /// <summary>
     /// Represent a position, a velocity and an acceleration of an entity within one axis
     /// </summary>
+    [Serializable]
     public readonly struct AxisStatus : IEquatable<AxisStatus>
     {
         readonly double _pos, _vel;

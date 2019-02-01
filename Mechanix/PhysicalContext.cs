@@ -18,29 +18,25 @@ namespace Mechanix
         readonly Dictionary<TEntityKey, int> _indexes;
         bool _isLocked;
 
-        readonly int _capacity;
         /// <summary>
         /// Required number of entities to begin simulation
         /// </summary>
-        public int Capacity => _capacity;
+        public int Capacity { get; }
 
-        bool _isFilled;
         /// <summary>
         /// <see langword="true"/> if context is filled and simulation is allowed
         /// </summary>
-        public bool IsFilled => _isFilled;
+        public bool IsFilled { get; private set; }
 
-        readonly double _timePerTick;
         /// <summary>
         /// A period of time, during that all force values are considered to be uniform
         /// </summary>
-        public double TimePerTick => _timePerTick;
+        public double TimePerTick { get; }
 
-        ulong _ticks;
         /// <summary>
         /// Count of <see cref="Tick(bool)"/> calls
         /// </summary>
-        public ulong Ticks => _ticks;
+        public ulong Ticks { get; private set; }
 
         /// <summary>
         /// <para>
@@ -58,6 +54,7 @@ namespace Mechanix
         /// This event raises before context is unlocked, 
         /// so <see cref="OnTick"/> handlers can't call <see cref="Tick()"/> method
         /// </remarks>
+        [field: NonSerialized]
         public event EventHandler<EventArgs> OnTick;
 
         public IEnumerable<TEntityKey> Keys => _indexes.Keys;
@@ -100,16 +97,16 @@ namespace Mechanix
         public PhysicalContext(double timePerTick, int capacity)
         {
             if (capacity < 0) throw new ArgumentOutOfRangeException("Context capacity can't be < 0", nameof(capacity));
-            _capacity = capacity;
+            Capacity = capacity;
 
-            _timePerTick = timePerTick;
-            _ticks = 0;
+            TimePerTick = timePerTick;
+            Ticks = 0;
             _indexes = new Dictionary<TEntityKey, int>(capacity);
             _forceValues = new Force[capacity][];
             _entities = new PointMass[capacity];
             _forceEvaluationLaws = new Func<PhysicalContext<TEntityKey>, Force>[capacity][];
             _isLocked = false;
-            _isFilled = false;
+            IsFilled = false;
         }
 
         /// <summary>
@@ -126,7 +123,7 @@ namespace Mechanix
             _forceValues[index] = new Force[forceEvaluationLaws.Length];
 
             _indexes.Add(key, index);
-            if (_indexes.Count == Capacity) _isFilled = true;
+            if (_indexes.Count == Capacity) IsFilled = true;
         }
 
         /// <summary>
@@ -142,7 +139,7 @@ namespace Mechanix
         /// <exception cref="UninitializedPhysicalContextException{TEntityKey}"> </exception>
         public void Tick(double timeSpan, bool usingMultithreading = true)
         {
-            ulong count = (ulong)Math.Round(timeSpan / _timePerTick);
+            ulong count = (ulong)Math.Round(timeSpan / TimePerTick);
             for (ulong t = 0; t < count; t++) Tick(usingMultithreading);
         }
 
@@ -160,7 +157,7 @@ namespace Mechanix
         [Obsolete("Use Tick(double timeSpan, Func<...> tickWhilePredicate)")]
         public void Tick(double timeSpan, CancellationToken cancellationToken, bool usingMultithreading = true)
         {
-            ulong count = (ulong)Math.Round(timeSpan / _timePerTick);
+            ulong count = (ulong)Math.Round(timeSpan / TimePerTick);
             if (cancellationToken.CanBeCanceled)
             {
                 for (ulong t = 0; t < count; t++)
@@ -191,7 +188,7 @@ namespace Mechanix
         /// <exception cref="UninitializedPhysicalContextException{TEntityKey}"> </exception>
         public bool Tick(double timeSpan, Func<PhysicalContext<TEntityKey>, bool> tickWhilePredicate, bool usingMultithreading = true)
         {
-            ulong count = (ulong)Math.Round(timeSpan / _timePerTick);
+            ulong count = (ulong)Math.Round(timeSpan / TimePerTick);
             for (ulong t = 0; t < count; t++)
             {
                 if (!tickWhilePredicate(this)) return false;
@@ -213,11 +210,11 @@ namespace Mechanix
         /// <exception cref="UninitializedPhysicalContextException{TEntityKey}"> </exception>
         public void Tick(bool usingMultithreading = true)
         {
-            if (!_isFilled) throw new UninitializedPhysicalContextException<TEntityKey>(this);
+            if (!IsFilled) throw new UninitializedPhysicalContextException<TEntityKey>(this);
             if (_isLocked) throw new LockedPhysicalContextException<TEntityKey>(this);
 
             _isLocked = true;
-            var count = _capacity;
+            var count = Capacity;
             try
             {
                 if (usingMultithreading)
@@ -260,7 +257,7 @@ namespace Mechanix
                     count,
                     c =>
                     {
-                        _entities[c] = _entities[c].Next(_timePerTick, _forceValues[c]);
+                        _entities[c] = _entities[c].Next(TimePerTick, _forceValues[c]);
                     }
                 );
             }
@@ -268,11 +265,11 @@ namespace Mechanix
             {
                 for (int c = 0; c < count; ++c)
                 {
-                    _entities[c] = _entities[c].Next(_timePerTick, _forceValues[c]);
+                    _entities[c] = _entities[c].Next(TimePerTick, _forceValues[c]);
                 }
             }
 
-            _ticks++;
+            Ticks++;
             try
             {
                 OnTick?.Invoke(this, EventArgs.Empty);

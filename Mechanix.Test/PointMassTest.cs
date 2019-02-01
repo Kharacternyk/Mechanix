@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Runtime.Serialization.Formatters.Binary;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using static Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
@@ -53,6 +54,27 @@ namespace Mechanix.Test
             AreEqual(5, pmnext.X.Position);
             AreEqual(5, pmnext.Y.Position);
             AreEqual(5, pmnext.Z.Position);
+        }
+
+        [TestMethod]
+        public void TestSerialization()
+        {
+            var pm = new PointMass
+            (
+                new AxisStatus(1, 2),
+                new AxisStatus(2, 3),
+                new AxisStatus(3, 4),
+                1
+            );
+
+            var formatter = new BinaryFormatter();
+            var stream = new System.IO.MemoryStream();
+
+            formatter.Serialize(stream, pm);
+            stream.Position = 0;
+            var newpm = formatter.Deserialize(stream);
+
+            AreEqual(pm, newpm);
         }
     }
 }
