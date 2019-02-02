@@ -6,13 +6,14 @@
     <SignAssembly>false</SignAssembly>
     <RepositoryUrl>https://github.com/Kharacternyk/Mechanix</RepositoryUrl>
     <Authors>https://github.com/Kharacternyk</Authors>
-    <Company>_</Company>
+    <Company></Company>
     <Product />
     <Description>Tiny .NET standart library for step-by-step evaluating moving in complex physical systems</Description>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>H:\SourceCode\Source\VisualStudioRepos\Mechanix\Mechanix\Mechanix.xml</DocumentationFile>
+    <DocumentationFile>..\Mechanix\Mechanix.xml</DocumentationFile>
   </PropertyGroup>
 
 </Project>
