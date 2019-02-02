@@ -8,14 +8,13 @@ namespace Mechanix
     [Serializable]
     public readonly struct AxisStatus : IEquatable<AxisStatus>
     {
-        readonly double _pos, _vel;
-        public double Position => _pos;
-        public double Velocity => _vel;
+        public double Position { get; }
+        public double Velocity { get; }
 
         public AxisStatus(double position, double velocity = 0)
         {
-            _pos = position;
-            _vel = velocity;
+            Position = position;
+            Velocity = velocity;
         }
 
         public override bool Equals(object obj)
@@ -25,8 +24,8 @@ namespace Mechanix
 
         public bool Equals(AxisStatus other)
         {
-            return _pos == other._pos &&
-                   _vel == other._vel;
+            return Position == other.Position &&
+                   Velocity == other.Velocity;
         }
 
         public override int GetHashCode()

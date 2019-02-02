@@ -9,33 +9,30 @@ namespace Mechanix
     [Serializable]
     public readonly struct PointMass : IEquatable<PointMass>
     {
-        readonly AxisStatus _x, _y, _z;
-        public AxisStatus X => _x;
-        public AxisStatus Y => _y;
-        public AxisStatus Z => _z;
-
-        readonly double _mass;
-        public double Mass => _mass;
+        public AxisStatus X { get; }
+        public AxisStatus Y { get; }
+        public AxisStatus Z { get; }
+        public double Mass { get; }
 
         public double Velocity
         {
-            get => Math.Sqrt(_x.Velocity * _x.Velocity + _y.Velocity * _y.Velocity + _z.Velocity * _z.Velocity);
+            get => Math.Sqrt(X.Velocity * X.Velocity + Y.Velocity * Y.Velocity + Z.Velocity * Z.Velocity);
         }
 
         public PointMass(in AxisStatus x, in AxisStatus y, in AxisStatus z, double mass)
         {
-            _x = x;
-            _y = y;
-            _z = z;
-            _mass = mass;
+            X = x;
+            Y = y;
+            Z = z;
+            Mass = mass;
         }
 
         public PointMass(double xPosition, double yPosition, double zPosition, double mass)
         {
-            _x = new AxisStatus(xPosition);
-            _y = new AxisStatus(yPosition);
-            _z = new AxisStatus(zPosition);
-            _mass = mass;
+            X = new AxisStatus(xPosition);
+            Y = new AxisStatus(yPosition);
+            Z = new AxisStatus(zPosition);
+            Mass = mass;
         }
 
         /// <summary>
@@ -67,9 +64,9 @@ namespace Mechanix
 
             return new PointMass
             (
-                new AxisStatus(_x.Position + _x.Velocity * dt, _x.Velocity + nextAX * dt),
-                new AxisStatus(_y.Position + _y.Velocity * dt, _y.Velocity + nextAY * dt),
-                new AxisStatus(_z.Position + _z.Velocity * dt, _z.Velocity + nextAZ * dt),
+                new AxisStatus(X.Position + X.Velocity * dt, X.Velocity + nextAX * dt),
+                new AxisStatus(Y.Position + Y.Velocity * dt, Y.Velocity + nextAY * dt),
+                new AxisStatus(Z.Position + Z.Velocity * dt, Z.Velocity + nextAZ * dt),
                 Mass
             );
         }
@@ -81,25 +78,25 @@ namespace Mechanix
 
         public bool Equals(PointMass other)
         {
-            return X.Equals(other._x) &&
-                   Y.Equals(other._y) &&
-                   Z.Equals(other._z) &&
+            return X.Equals(other.X) &&
+                   Y.Equals(other.Y) &&
+                   Z.Equals(other.Z) &&
                    Mass == other.Mass;
         }
 
         public override int GetHashCode()
         {
             var hashCode = -1636101175;
-            hashCode = hashCode * -1521134295 + EqualityComparer<AxisStatus>.Default.GetHashCode(_x);
-            hashCode = hashCode * -1521134295 + EqualityComparer<AxisStatus>.Default.GetHashCode(_y);
-            hashCode = hashCode * -1521134295 + EqualityComparer<AxisStatus>.Default.GetHashCode(_z);
+            hashCode = hashCode * -1521134295 + EqualityComparer<AxisStatus>.Default.GetHashCode(X);
+            hashCode = hashCode * -1521134295 + EqualityComparer<AxisStatus>.Default.GetHashCode(Y);
+            hashCode = hashCode * -1521134295 + EqualityComparer<AxisStatus>.Default.GetHashCode(Z);
             hashCode = hashCode * -1521134295 + Mass.GetHashCode();
             return hashCode;
         }
 
         public override string ToString()
         {
-            return $"PointMass[x: {_x}; y: {_y}; z: {_z}; Mass = {_mass}]";
+            return $"PointMass[x: {X}; y: {Y}; z: {Z}; Mass = {Mass}]";
         }
 
         public static bool operator ==(PointMass mass1, PointMass mass2)

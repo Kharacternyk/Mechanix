@@ -17,11 +17,10 @@ namespace Mechanix
         readonly Func<PhysicalContext<TEntityKey>, TValue> _func;
         readonly List<TValue> _values;
         ulong _currTimer;
-        readonly ulong _interval;
         /// <summary>
         /// Represents interval of the data recording (from observable context)
         /// </summary>
-        public ulong Interval => _interval;
+        public ulong Interval { get; }
 
         public ContextTracker
         (
@@ -33,7 +32,7 @@ namespace Mechanix
         {
             if (interval == 0) throw new ArgumentOutOfRangeException(nameof(interval), "ContextTracker interval should be non-zero");
             _func = valueFunc;
-            _interval = interval;
+            Interval = interval;
             _values = new List<TValue>();
 
             _currTimer = 0;
@@ -42,7 +41,7 @@ namespace Mechanix
 
         protected override void Observe()
         {
-            if (_currTimer == _interval - 1)
+            if (_currTimer == Interval - 1)
             {
                 _values.Add(_func(ObservableContext));
                 _currTimer = 0;
@@ -59,7 +58,7 @@ namespace Mechanix
             {
                 for (uint i = 0; i < _values.Count; ++i)
                 {
-                    yield return ObservationBeginTick + i * _interval;
+                    yield return ObservationBeginTick + i * Interval;
                 }
                 yield break;
             }
@@ -99,18 +98,18 @@ namespace Mechanix
                         $"about state of observable context at {ticks} because LastObservedTick is {LastObservedTick}."
                     );
                 }
-                if ((ticks - ObservationBeginTick) % _interval != 0)
+                if ((ticks - ObservationBeginTick) % Interval != 0)
                 {
                     throw new ArgumentOutOfRangeException
                     (
                         nameof(ticks),
-                        $"ContextTracker collects data only each {_interval} tick. Can't access data at {ticks}" +
-                        $"tick, the closest accesible tick value is {ticks - (ticks - ObservationBeginTick) % _interval}." +
+                        $"ContextTracker collects data only each {Interval} tick. Can't access data at {ticks}" +
+                        $"tick, the closest accesible tick value is {ticks - (ticks - ObservationBeginTick) % Interval}." +
                         $"If you want to get the closest value by default use GetApproximately method instead."
                     );
                 }
                 
-                return _values[(int)((ticks - ObservationBeginTick) / _interval)];
+                return _values[(int)((ticks - ObservationBeginTick) / Interval)];
             }
         }
 
@@ -125,12 +124,12 @@ namespace Mechanix
         public TValue GetApproximately(double time)
         {
             ulong ticks = (ulong)Math.Round(time / ObservableContext.TimePerTick);
-            return _values[(int)((ticks - ObservationBeginTick) / _interval)];
+            return _values[(int)((ticks - ObservationBeginTick) / Interval)];
         }
 
         public bool ContainsKey(ulong key)
         {
-            return ObservationBeginTick <= key && key <= LastObservedTick && (key - ObservationBeginTick) % _interval == 0;
+            return ObservationBeginTick <= key && key <= LastObservedTick && (key - ObservationBeginTick) % Interval == 0;
         }
 
         public bool TryGetValue(ulong key, out TValue value)
@@ -148,7 +147,7 @@ namespace Mechanix
         {
             for (uint i = 0; i < _values.Count; ++i)
             {
-                var key = ObservationBeginTick + i * _interval;
+                var key = ObservationBeginTick + i * Interval;
                 var value = _values[(int)i];
                 yield return new KeyValuePair<ulong, TValue>(key, value);
             }
