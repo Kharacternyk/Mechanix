@@ -48,7 +48,7 @@ namespace Mechanix
         public double Timer => Ticks * TimePerTick;
 
         /// <summary>
-        /// Occurres each time the <see cref="Tick()"/> method is called
+        /// Occurs each time the <see cref="Tick()"/> method is called
         /// </summary>
         /// <remarks>
         /// This event raises before context is unlocked, 
@@ -132,7 +132,7 @@ namespace Mechanix
         /// <param name="usingMultithreading">
         /// If <see langword="true"/>, then calculating next 
         /// state of entities will be paralleled 
-        /// (and exceptions that have occured while force values evaluating will be wrapped into <see cref="AggregateException"/>)
+        /// (and exceptions that have occurred while force values evaluating will be wrapped into <see cref="AggregateException"/>)
         /// </param>
         /// <exception cref="AggregateException"> </exception>
         /// <exception cref="LockedPhysicalContextException{TEntityKey}"> </exception>
@@ -149,7 +149,7 @@ namespace Mechanix
         /// <param name="usingMultithreading">
         /// If <see langword="true"/>, then calculating next 
         /// state of entities will be paralleled 
-        /// (and exceptions that have occured while force values evaluating will be wrapped into <see cref="AggregateException"/>)
+        /// (and exceptions that have occurred while force values evaluating will be wrapped into <see cref="AggregateException"/>)
         /// </param>
         /// <exception cref="AggregateException"> </exception>
         /// <exception cref="LockedPhysicalContextException{TEntityKey}"> </exception>
@@ -175,10 +175,10 @@ namespace Mechanix
         /// <param name="usingMultithreading">
         /// If <see langword="true"/>, then calculating next 
         /// state of entities will be paralleled 
-        /// (and exceptions that have occured while force values evaluating will be wrapped into <see cref="AggregateException"/>)
+        /// (and exceptions that have occurred while force values evaluating will be wrapped into <see cref="AggregateException"/>)
         /// </param>
         /// <param name="tickWhilePredicate">
-        /// Execution continues only while this predicate result is true. Evals after each <see cref="TimePerTick"/> wasted.
+        /// Execution continues only while this predicate result is true. Calculates after each <see cref="TimePerTick"/> wasted.
         /// </param>
         /// <returns>
         /// Whether <paramref name="tickWhilePredicate"/> was <see langword="true"/> all the <paramref name="timeSpan"/>
@@ -203,7 +203,7 @@ namespace Mechanix
         /// <param name="usingMultithreading">
         /// If <see langword="true"/>, then calculating next 
         /// state of entities will be paralleled 
-        /// (and exceptions that have occured while force values evaluating will be wrapped into <see cref="AggregateException"/>)
+        /// (and exceptions that have occurred while force values evaluating will be wrapped into <see cref="AggregateException"/>)
         /// </param>
         /// <exception cref="AggregateException"> </exception>
         /// <exception cref="LockedPhysicalContextException{TEntityKey}"> </exception>

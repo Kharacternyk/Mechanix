@@ -3,7 +3,7 @@
 namespace Mechanix.Laws
 {
     /// <summary>
-    /// Factory for forces, that occurre when one entity is too close to other entity.
+    /// Factory for forces, that occur when one entity is too close to other entity.
     /// Proportional to deformation
     /// </summary>
     public static class RadialCollisionLaw

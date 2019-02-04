@@ -8,7 +8,7 @@
     <Authors>https://github.com/Kharacternyk</Authors>
     <Company></Company>
     <Product />
-    <Description>Tiny .NET standart library for step-by-step evaluating moving in complex physical systems</Description>
+    <Description>Tiny .NET standard library for step-by-step evaluating moving in complex physical systems</Description>
     <Version>1.1.0</Version>
   </PropertyGroup>
 

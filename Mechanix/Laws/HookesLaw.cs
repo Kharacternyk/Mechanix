@@ -3,7 +3,7 @@
 namespace Mechanix.Laws
 {
     /// <summary>
-    /// Factory for forces obeyed by the Hooke's law: the force value is propotional to the extension of distance
+    /// Factory for forces obeyed by the Hooke's law: the force value is proportional to the extension of distance
     /// </summary>
     public static class HookesLaw
     {

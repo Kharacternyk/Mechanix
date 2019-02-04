@@ -82,7 +82,7 @@ namespace Mechanix
                     (
                         nameof(ticks),
                         $"ContextTracker doesn't contain any information about the state of observable context at {ticks} " +
-                        $"becouse observation begin at {ObservationBeginTick} tick."
+                        $"because observation begin at {ObservationBeginTick} tick."
                     );
                 }
                 if (ticks > LastObservedTick)
@@ -104,7 +104,7 @@ namespace Mechanix
                     (
                         nameof(ticks),
                         $"ContextTracker collects data only each {Interval} tick. Can't access data at {ticks}" +
-                        $"tick, the closest accesible tick value is {ticks - (ticks - ObservationBeginTick) % Interval}." +
+                        $"tick, the closest accessible tick value is {ticks - (ticks - ObservationBeginTick) % Interval}." +
                         $"If you want to get the closest value by default use GetApproximately method instead."
                     );
                 }
