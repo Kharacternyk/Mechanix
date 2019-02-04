@@ -97,6 +97,7 @@ namespace Mechanix
         public PhysicalContext(double timePerTick, int capacity)
         {
             if (capacity < 0) throw new ArgumentOutOfRangeException("Context capacity can't be < 0", nameof(capacity));
+            if (timePerTick < 0) throw new ArgumentOutOfRangeException("Time per tick can't be < 0", nameof(TimePerTick));
             Capacity = capacity;
 
             TimePerTick = timePerTick;
