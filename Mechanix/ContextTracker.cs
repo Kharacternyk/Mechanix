@@ -18,13 +18,15 @@ namespace Mechanix
         readonly List<TValue> _values;
         ulong _currTimer;
         /// <summary>
-        /// Represents interval of the data recording (from observable context)
+        /// Interval of the data recording (from observable context)
         /// </summary>
         public ulong Interval { get; }
 
         public ulong LastRecordTick => ObservationBeginTick + (ulong)(_values.Count - 1) * Interval;
         public double LastRecordTime => LastRecordTick * ObservableContext.TimePerTick;
         public TValue LastRecord => _values[_values.Count - 1];
+
+        public event EventHandler OnRecord;
 
         public ContextTracker
         (
@@ -49,6 +51,7 @@ namespace Mechanix
             {
                 _values.Add(_func(ObservableContext));
                 _currTimer = 0;
+                OnRecord?.Invoke(this, EventArgs.Empty);
             }
             else
             {
