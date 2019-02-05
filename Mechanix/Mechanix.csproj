@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>..\Mechanix\Mechanix.xml</DocumentationFile>
+    <DocumentationFile>..\Mechanix\bin\Release\Mechanix.xml</DocumentationFile>
   </PropertyGroup>
 
 </Project>

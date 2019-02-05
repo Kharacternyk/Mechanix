@@ -22,6 +22,10 @@ namespace Mechanix
         /// </summary>
         public ulong Interval { get; }
 
+        public ulong LastRecordTick => ObservationBeginTick + (ulong)(_values.Count - 1) * Interval;
+        public double LastRecordTime => LastRecordTick * ObservableContext.TimePerTick;
+        public TValue LastRecord => _values[_values.Count - 1];
+
         public ContextTracker
         (
             PhysicalContext<TEntityKey> observableContext,

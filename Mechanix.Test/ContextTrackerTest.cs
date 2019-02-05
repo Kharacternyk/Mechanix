@@ -96,6 +96,7 @@ namespace Mechanix.Test
 
                 context.Tick(42);
                 AreEqual((int)(42 / i + 1), tracker.Count);
+                AreEqual(42 - 42 % i, tracker.LastRecordTick);
                 ThrowsException<ArgumentOutOfRangeException>(() => tracker[43]);
                 if (i > 1) ThrowsException<ArgumentOutOfRangeException>(() => tracker[i + 1]);
 
