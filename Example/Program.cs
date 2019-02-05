@@ -38,14 +38,14 @@ namespace Example
             (
                 "freeFallEntity", //key
                 freeFallEntity, //entity
-                c => //Only force that have inpact on this entity
+                c => //Only force that have impact on this entity
                 -new Force 
                 (
                     xComponent: 0,
                     yComponent: c["freeFallEntity"].Mass * freeFallAcceleration,
                     zComponent: 0
                 )
-                //In each perion of time this force is vertical and equal to mass of entity multiplied
+                //This force is always vertical and equal to mass of entity multiplied
                 //by free fall acceleration.
             );
 
@@ -54,7 +54,7 @@ namespace Example
             context.Tick(timeSpan: 1);
             Console.WriteLine($"\nState of entity after 1 second is \n{context["freeFallEntity"]}");
 
-            //If you want to record some data while context is updatnig, 
+            //If you want to record some data while context is updating, 
             //you may subscribe to OnTick event or better use class derived from ContextObserver.
             var yPositionTracker = new ContextTracker<string, double>
             (
@@ -103,7 +103,7 @@ namespace Example
             );
 
             //So, lets create something more complex.
-            //What about the spring pendulum with air ressistence?
+            //What about the spring pendulum with air resistance?
             var pendulumContext = new PhysicalContext<PendulumEntities>(dt, 2);
             var axis = new PointMass(0, 0, 0, 0);
             var mass = new PointMass(1, 0, 0, 0);
@@ -117,7 +117,7 @@ namespace Example
                 (
                     PendulumEntities.Mass,
                     PendulumEntities.Axis,
-                    1, //undeformed lenght of spring
+                    1, //undeformed length of spring
                     10 //elasticity coefficient
                 )                
             );
