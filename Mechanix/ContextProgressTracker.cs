@@ -59,6 +59,12 @@ namespace Mechanix
             Observe();
         }
 
+        protected override void OnDisposed()
+        {
+            OnCheckPoint = null;
+            OnGoal = null;
+        }
+
         public static ContextProgressTracker<TEntityKey> FromTime
         (
             PhysicalContext<TEntityKey> observableContext,

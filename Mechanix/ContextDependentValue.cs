@@ -11,11 +11,13 @@ namespace Mechanix
     /// <typeparam name="TValue"> Type of stored value </typeparam>
     public sealed class ContextDependentValue<TEntityKey, TValue> : ContextObserver<TEntityKey> where TValue : struct
     {
+        Func<PhysicalContext<TEntityKey>, TValue, TValue?> _newValueFunc;
+
         public TValue Value { get; private set; }
         public ulong LastValueChangeTick { get; private set; }
         public double LastValueChangeTime => LastValueChangeTick * ObservableContext.TimePerTick;
 
-        Func<PhysicalContext<TEntityKey>, TValue, TValue?> _newValueFunc;
+        public event EventHandler OnValueChanges;
 
         /// <param name="newValueFunc">
         /// Function for evaluating new <see cref="Value"/> through new observable context state and old value.
@@ -34,6 +36,11 @@ namespace Mechanix
             Value = startValue;
         }
 
+        protected override void OnDisposed()
+        {
+            OnValueChanges = null;
+        }
+
         protected override void Observe()
         {
             var result = _newValueFunc(ObservableContext, Value);
@@ -41,6 +48,7 @@ namespace Mechanix
             {
                 Value = (TValue)result;
                 LastValueChangeTick = ObservableContext.Ticks;
+                OnValueChanges?.Invoke(this, EventArgs.Empty);
             }
         }
     }

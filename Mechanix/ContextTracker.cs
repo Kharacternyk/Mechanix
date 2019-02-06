@@ -45,6 +45,11 @@ namespace Mechanix
             _values.Add(_func(ObservableContext));
         }
 
+        protected override void OnDisposed()
+        {
+            OnRecord = null;
+        }
+
         protected override void Observe()
         {
             if (_currTimer == Interval - 1)

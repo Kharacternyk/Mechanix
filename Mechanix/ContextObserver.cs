@@ -33,6 +33,7 @@ namespace Mechanix
         {
             ObservableContext.OnTick -= OnTick;
             IsActive = false;
+            OnDisposed();
         }
 
         public ContextObserver(PhysicalContext<TEntityKey> observableContext)
@@ -53,5 +54,10 @@ namespace Mechanix
         /// Method for handling new state of <see cref="ObservableContext"/>
         /// </summary>
         protected abstract void Observe();
+
+        /// <summary>
+        /// Additional logic of disposing
+        /// </summary>
+        protected virtual void OnDisposed() { }
     }
 }
