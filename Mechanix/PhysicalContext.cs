@@ -128,29 +128,6 @@ namespace Mechanix
         }
 
         /// <summary>
-        /// Updates all entities till result of <paramref name="tickWhilePredicate"/> is true
-        /// </summary>
-        /// <param name="usingMultithreading">
-        /// If <see langword="true"/>, then calculating next 
-        /// state of entities will be paralleled 
-        /// (and exceptions that have occurred while force values evaluating will be wrapped into <see cref="AggregateException"/>)
-        /// </param>
-        /// <param name="tickWhilePredicate">
-        /// Execution continues only while result of this predicate is true. Calculates after each <see cref="TimePerTick"/> wasted.
-        /// </param>
-        /// <exception cref="AggregateException"> </exception>
-        /// <exception cref="LockedPhysicalContextException{TEntityKey}"> </exception>
-        /// <exception cref="UninitializedPhysicalContextException{TEntityKey}"> </exception>
-        public void Tick(Func<PhysicalContext<TEntityKey>, bool> tickWhilePredicate, bool usingMultithreading = true)
-        {
-            while (true)
-            {
-                if (!tickWhilePredicate(this)) return;
-                Tick(usingMultithreading);
-            }
-        }
-
-        /// <summary>
         /// Updates all entities as <paramref name="timeSpan"/> was wasted
         /// </summary>
         /// <param name="usingMultithreading">
