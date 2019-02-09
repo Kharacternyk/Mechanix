@@ -16,7 +16,14 @@ namespace Mechanix
         readonly Func<PhysicalContext<TEntityKey>, Force>[][] _forceEvaluationLaws;
         readonly Force[][] _forceValues;
         readonly Dictionary<TEntityKey, int> _indexes;
+        readonly bool _parallelEntities;
+        readonly bool _parallelSubscribers;
         bool _isLocked;
+
+        /// <summary>
+        /// Simulation parameters applied to this <see cref="PhysicalContext{TEntityKey}"/> instance
+        /// </summary>
+        public SimulationParams SimulationParams { get; }
 
         /// <summary>
         /// Required number of entities to begin simulation
@@ -54,7 +61,7 @@ namespace Mechanix
         /// This event raises before context is unlocked, 
         /// so <see cref="OnTick"/> handlers can't call <see cref="Tick()"/> method
         /// </remarks>
-        public event EventHandler<EventArgs> OnTick;
+        public event EventHandler OnTick;
 
         public IEnumerable<TEntityKey> Keys => _indexes.Keys;
 
@@ -93,7 +100,7 @@ namespace Mechanix
             }
         }
 
-        public PhysicalContext(double timePerTick, int capacity)
+        public PhysicalContext(double timePerTick, int capacity, SimulationParams simulationParams = SimulationParams.ParallelEntities)
         {
             if (capacity < 0) throw new ArgumentOutOfRangeException("Context capacity can't be < 0", nameof(capacity));
             if (timePerTick < 0) throw new ArgumentOutOfRangeException("Time per tick can't be < 0", nameof(TimePerTick));
@@ -107,6 +114,10 @@ namespace Mechanix
             _forceEvaluationLaws = new Func<PhysicalContext<TEntityKey>, Force>[capacity][];
             _isLocked = false;
             IsFilled = false;
+
+            SimulationParams = simulationParams;
+            _parallelEntities = (simulationParams & SimulationParams.ParallelEntities) != 0;
+            _parallelSubscribers = (simulationParams & SimulationParams.ParallelSubscribers) != 0;
         }
 
         /// <summary>
@@ -130,11 +141,6 @@ namespace Mechanix
         /// <summary>
         /// Updates all entities while result of <paramref name="tickWhilePredicate"/> is true
         /// </summary>
-        /// <param name="parallelEntities">
-        /// If <see langword="true"/>, then calculating next 
-        /// state of entities will be paralleled 
-        /// (and exceptions that have occurred while force values evaluating will be wrapped into <see cref="AggregateException"/>)
-        /// </param>
         /// <param name="tickWhilePredicate">
         /// Execution continues only while result of this predicate is true. Calculates after each <see cref="TimePerTick"/> wasted.
         /// </param>
@@ -149,7 +155,7 @@ namespace Mechanix
             _isLocked = true;
             try
             {
-                while (tickWhilePredicate(this)) UpdateEntities(parallelEntities);
+                while (tickWhilePredicate(this)) UpdateEntities();
             }
             finally
             {
@@ -160,15 +166,10 @@ namespace Mechanix
         /// <summary>
         /// Updates all entities as <paramref name="timeSpan"/> was wasted
         /// </summary>
-        /// <param name="parallelEntities">
-        /// If <see langword="true"/>, then calculating next 
-        /// state of entities will be paralleled 
-        /// (and exceptions that have occurred while force values evaluating will be wrapped into <see cref="AggregateException"/>)
-        /// </param>
         /// <exception cref="AggregateException"> </exception>
         /// <exception cref="LockedPhysicalContextException{TEntityKey}"> </exception>
         /// <exception cref="UninitializedPhysicalContextException{TEntityKey}"> </exception>
-        public void Tick(double timeSpan, bool parallelEntities = true)
+        public void Tick(double timeSpan)
         {
             if (!IsFilled) throw new UninitializedPhysicalContextException<TEntityKey>(this);
             if (_isLocked) throw new LockedPhysicalContextException<TEntityKey>(this);
@@ -177,7 +178,7 @@ namespace Mechanix
             try
             {
                 ulong count = (ulong)Math.Round(timeSpan / TimePerTick);
-                for (ulong t = 0; t < count; t++) UpdateEntities(parallelEntities);
+                for (ulong t = 0; t < count; t++) UpdateEntities();
             }
             finally
             {
@@ -188,11 +189,6 @@ namespace Mechanix
         /// <summary>
         /// Updates all entities as <paramref name="timeSpan"/> was wasted
         /// </summary>
-        /// <param name="parallelEntities">
-        /// If <see langword="true"/>, then calculating next 
-        /// state of entities will be paralleled 
-        /// (and exceptions that have occurred while force values evaluating will be wrapped into <see cref="AggregateException"/>)
-        /// </param>
         /// <param name="tickWhilePredicate">
         /// Execution continues only while result of this predicate is true. Calculates after each <see cref="TimePerTick"/> wasted.
         /// </param>
@@ -202,7 +198,7 @@ namespace Mechanix
         /// <exception cref="AggregateException"> </exception>
         /// <exception cref="LockedPhysicalContextException{TEntityKey}"> </exception>
         /// <exception cref="UninitializedPhysicalContextException{TEntityKey}"> </exception>
-        public bool Tick(double timeSpan, Func<PhysicalContext<TEntityKey>, bool> tickWhilePredicate, bool parallelEntities = true)
+        public bool Tick(double timeSpan, Func<PhysicalContext<TEntityKey>, bool> tickWhilePredicate)
         {
             if (!IsFilled) throw new UninitializedPhysicalContextException<TEntityKey>(this);
             if (_isLocked) throw new LockedPhysicalContextException<TEntityKey>(this);
@@ -214,7 +210,7 @@ namespace Mechanix
                 for (ulong t = 0; t < count; t++)
                 {
                     if (!tickWhilePredicate(this)) return false;
-                    UpdateEntities(parallelEntities);
+                    UpdateEntities();
                 }
             }
             finally
@@ -228,15 +224,10 @@ namespace Mechanix
         /// <summary>
         /// Updates all entities as <see cref="TimePerTick"/> was wasted
         /// </summary>
-        /// <param name="parallelEntities">
-        /// If <see langword="true"/>, then calculating next 
-        /// state of entities will be paralleled 
-        /// (and exceptions that have occurred while force values evaluating will be wrapped into <see cref="AggregateException"/>)
-        /// </param>
         /// <exception cref="AggregateException"> </exception>
         /// <exception cref="LockedPhysicalContextException{TEntityKey}"> </exception>
         /// <exception cref="UninitializedPhysicalContextException{TEntityKey}"> </exception>
-        public void Tick(bool parallelEntities = true)
+        public void Tick()
         {
             if (!IsFilled) throw new UninitializedPhysicalContextException<TEntityKey>(this);
             if (_isLocked) throw new LockedPhysicalContextException<TEntityKey>(this);
@@ -244,7 +235,7 @@ namespace Mechanix
             _isLocked = true;
             try
             {
-                UpdateEntities(parallelEntities);
+                UpdateEntities();
             }
             finally
             {
@@ -254,10 +245,10 @@ namespace Mechanix
         #endregion
 
         [MethodImpl(methodImplOptions: MethodImplOptions.AggressiveInlining)]
-        void UpdateEntities(bool parallelEntities)
+        void UpdateEntities()
         {
             var count = Capacity;
-            if (parallelEntities)
+            if (_parallelEntities)
             {
                 Parallel.For
                 (
@@ -271,20 +262,6 @@ namespace Mechanix
                         }
                     }
                 );
-            }
-            else
-            {
-                for (int c = 0; c < count; ++c)
-                {
-                    for (int i = 0; i < _forceValues[c].Length; ++i)
-                    {
-                        _forceValues[c][i] = _forceEvaluationLaws[c][i].Invoke(this);
-                    }
-                }
-            }
-
-            if (parallelEntities)
-            {
                 Parallel.For
                 (
                     0,
@@ -299,12 +276,33 @@ namespace Mechanix
             {
                 for (int c = 0; c < count; ++c)
                 {
+                    for (int i = 0; i < _forceValues[c].Length; ++i)
+                    {
+                        _forceValues[c][i] = _forceEvaluationLaws[c][i].Invoke(this);
+                    }
+                }
+                for (int c = 0; c < count; ++c)
+                {
                     _entities[c] = _entities[c].Next(TimePerTick, _forceValues[c]);
                 }
             }
 
             Ticks++;
-            OnTick?.Invoke(this, EventArgs.Empty);
+
+            if (OnTick is null) return;
+            if (_parallelSubscribers)
+            {
+                var subscribers = OnTick.GetInvocationList();
+                Parallel.ForEach
+                (
+                    subscribers,
+                    sub => ((EventHandler)sub).Invoke(this, EventArgs.Empty)
+                );
+            }
+            else
+            {
+                OnTick.Invoke(this, EventArgs.Empty);
+            }
         }
 
         public bool ContainsKey(TEntityKey key)
