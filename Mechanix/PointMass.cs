@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Mechanix
 {
@@ -48,7 +49,8 @@ namespace Mechanix
         /// Set of <see cref="Force"/> values, that have impact on this entity
         /// </param>
         /// <returns></returns>
-        public PointMass Next(double dt, params Force[] forcesAttached)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal PointMass Next(double dt, params Force[] forcesAttached)
         {
             double nextAX = 0, nextAY = 0, nextAZ = 0;
             for (int i = 0; i < forcesAttached.Length; ++i)
