@@ -3,7 +3,7 @@
 namespace Mechanix
 {
     /// <summary>
-    /// Throws when unexisting entity in a <see cref="PhysicalContext{TEntityKey}"/> is tried to be accesed
+    /// Throws when unexisting entity in a <see cref="PhysicalContext{TEntityKey}"/> is tried to be accessed
     /// </summary>
     /// <typeparam name="TEntityKey"> Type of keys </typeparam>
     public class UnexistingEntityException<TEntityKey> : Exception

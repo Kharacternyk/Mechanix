@@ -4,7 +4,7 @@ namespace Mechanix
 {
     /// <summary>
     /// Throws when change of <see cref="PhysicalContext{TEntityKey}"/> 
-    /// state is requsted while <see cref="PhysicalContext{TEntityKey}.Tick()"/> is executed
+    /// state is requested while <see cref="PhysicalContext{TEntityKey}.Tick()"/> is executed
     /// </summary>
     /// <typeparam name="TEntityKey"> Type of keys </typeparam>
     public class LockedPhysicalContextException<TEntityKey> : Exception
