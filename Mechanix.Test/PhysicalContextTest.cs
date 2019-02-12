@@ -60,7 +60,9 @@ namespace Mechanix.Test
         [TestMethod]
         public void TestTickSequential()
         {
-            var context = new PhysicalContext<int>(0.23, 1, SimulationParams.None);
+            var context = new PhysicalContext<int>(0.23, 1);
+            context.EntitiesParallelOptions.MaxDegreeOfParallelism = 1;
+
             var entity = new PointMass
             (
                 new AxisStatus(1, 0),
@@ -111,7 +113,7 @@ namespace Mechanix.Test
         public void TestThrowingException()
         {
             var context = new PhysicalContext<int>(1, 1);
-            var contextSeq = new PhysicalContext<int>(1, 1, SimulationParams.None);
+
             var entity = new PointMass
             (
                 new AxisStatus(0, 1),
@@ -121,7 +123,6 @@ namespace Mechanix.Test
             );
 
             ThrowsException<UninitializedPhysicalContextException<int>>(() => context.Tick());
-            ThrowsException<UninitializedPhysicalContextException<int>>(() => contextSeq.Tick());
 
             context.AddEntity
             (
@@ -130,18 +131,9 @@ namespace Mechanix.Test
                 // Unexisting key {1} is here
                 c => new Force (c[1].X.Position, 0, 0)
             );
-            contextSeq.AddEntity
-            (
-                0,
-                entity,
-                // Unexisting key {1} is here
-                c => new Force(c[1].X.Position, 0, 0)
-            );
 
             ThrowsException<AggregateException>(() => context.Tick());
-            ThrowsException<UnexistingEntityException<int>>(() => contextSeq.Tick());
             ThrowsException<FilledPhysicalContextException<int>>(() => context.AddEntity(1, entity));
-            ThrowsException<FilledPhysicalContextException<int>>(() => contextSeq.AddEntity(1, entity));
         }
 
         [TestMethod]
@@ -320,7 +312,7 @@ namespace Mechanix.Test
             AreEqual(3, count);
 
             context.OnTick += (c, e) => ((PhysicalContext<int>)c).Tick();
-            ThrowsException<LockedPhysicalContextException<int>>(() => context.Tick());
+            ThrowsException<AggregateException>(() => context.Tick());
         }
 
         [TestMethod]

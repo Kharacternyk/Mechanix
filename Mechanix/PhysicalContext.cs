@@ -16,14 +16,10 @@ namespace Mechanix
         readonly Func<PhysicalContext<TEntityKey>, Force>[][] _forceEvaluationLaws;
         readonly Force[][] _forceValues;
         readonly Dictionary<TEntityKey, int> _indexes;
-        readonly bool _parallelEntities;
-        readonly bool _parallelSubscribers;
         bool _isLocked;
 
-        /// <summary>
-        /// Simulation parameters applied to this <see cref="PhysicalContext{TEntityKey}"/> instance
-        /// </summary>
-        public SimulationParams SimulationParams { get; }
+        public ParallelOptions EntitiesParallelOptions { get; } = new ParallelOptions() { MaxDegreeOfParallelism = -1 };
+        public ParallelOptions SubscribersParallelOptions { get; } = new ParallelOptions() { MaxDegreeOfParallelism = -1 };
 
         /// <summary>
         /// Required number of entities to begin simulation
@@ -41,7 +37,7 @@ namespace Mechanix
         public double TimePerTick { get; }
 
         /// <summary>
-        /// Count of <see cref="Tick(bool)"/> calls
+        /// Count of elapsed ticks
         /// </summary>
         public ulong Ticks { get; private set; }
 
@@ -100,7 +96,7 @@ namespace Mechanix
             }
         }
 
-        public PhysicalContext(double timePerTick, int capacity, SimulationParams simulationParams = SimulationParams.ParallelEntities)
+        public PhysicalContext(double timePerTick, int capacity)
         {
             if (capacity < 0) throw new ArgumentOutOfRangeException("Context capacity can't be < 0", nameof(capacity));
             if (timePerTick < 0) throw new ArgumentOutOfRangeException("Time per tick can't be < 0", nameof(TimePerTick));
@@ -114,10 +110,6 @@ namespace Mechanix
             _forceEvaluationLaws = new Func<PhysicalContext<TEntityKey>, Force>[capacity][];
             _isLocked = false;
             IsFilled = false;
-
-            SimulationParams = simulationParams;
-            _parallelEntities = (simulationParams & SimulationParams.ParallelEntities) != 0;
-            _parallelSubscribers = (simulationParams & SimulationParams.ParallelSubscribers) != 0;
         }
 
         /// <summary>
@@ -248,61 +240,40 @@ namespace Mechanix
         void UpdateEntities()
         {
             var count = Capacity;
-            if (_parallelEntities)
-            {
-                Parallel.For
-                (
-                    0,
-                    count,
-                    c =>
-                    {
-                        for (int i = 0; i < _forceValues[c].Length; ++i)
-                        {
-                            _forceValues[c][i] = _forceEvaluationLaws[c][i].Invoke(this);
-                        }
-                    }
-                );
-                Parallel.For
-                (
-                    0,
-                    count,
-                    c =>
-                    {
-                        _entities[c] = _entities[c].Next(TimePerTick, _forceValues[c]);
-                    }
-                );
-            }
-            else
-            {
-                for (int c = 0; c < count; ++c)
+            Parallel.For
+            (
+                0,
+                count,
+                EntitiesParallelOptions,
+                c =>
                 {
                     for (int i = 0; i < _forceValues[c].Length; ++i)
                     {
                         _forceValues[c][i] = _forceEvaluationLaws[c][i].Invoke(this);
                     }
                 }
-                for (int c = 0; c < count; ++c)
+            );
+            Parallel.For
+            (
+                0,
+                count,
+                EntitiesParallelOptions,
+                c =>
                 {
                     _entities[c] = _entities[c].Next(TimePerTick, _forceValues[c]);
                 }
-            }
+            );
 
             Ticks++;
 
             if (OnTick is null) return;
-            if (_parallelSubscribers)
-            {
-                var subscribers = OnTick.GetInvocationList();
-                Parallel.ForEach
-                (
-                    subscribers,
-                    sub => ((EventHandler)sub).Invoke(this, EventArgs.Empty)
-                );
-            }
-            else
-            {
-                OnTick.Invoke(this, EventArgs.Empty);
-            }
+            var subscribers = OnTick.GetInvocationList();
+            Parallel.ForEach
+            (
+                subscribers,
+                SubscribersParallelOptions,
+                sub => ((EventHandler)sub).Invoke(this, EventArgs.Empty)
+            );
         }
 
         public bool ContainsKey(TEntityKey key)
