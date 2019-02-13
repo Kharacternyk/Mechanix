@@ -42,16 +42,12 @@ namespace Mechanix
         public ulong Ticks { get; private set; }
 
         /// <summary>
-        /// <para>
         /// Time in the context passed since this <see cref="PhysicalContext{TEntityKey}"/> was created.
-        /// </para>
-        /// Each time the method <see cref="Tick()"/> is called, 
-        /// <see cref="Timer"/> is increased by <see cref="TimePerTick" />
         /// </summary>
         public double Timer => Ticks * TimePerTick;
 
         /// <summary>
-        /// Occurs each time the <see cref="Tick()"/> method is called
+        /// Occurs when <see cref="TimePerTick"/> has elapsed
         /// </summary>
         /// <remarks>
         /// This event raises before context is unlocked, 
@@ -113,7 +109,7 @@ namespace Mechanix
         }
 
         /// <summary>
-        /// Adds <see cref="PointMass"/> entity to this context and binds some force evaluation laws, that affect it
+        /// Adds <see cref="PointMass"/> entity to this context and binds some force evaluation laws that affect it
         /// </summary>
         public void AddEntity(TEntityKey key, in PointMass entity, params Func<PhysicalContext<TEntityKey>, Force>[] forceEvaluationLaws)
         {
