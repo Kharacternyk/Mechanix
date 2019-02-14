@@ -18,8 +18,17 @@ namespace Mechanix
         readonly Dictionary<TEntityKey, int> _indexes;
         bool _isLocked;
 
-        public ParallelOptions EntitiesParallelOptions { get; } = new ParallelOptions() { MaxDegreeOfParallelism = -1 };
-        public ParallelOptions SubscribersParallelOptions { get; } = new ParallelOptions() { MaxDegreeOfParallelism = -1 };
+        /// <summary>
+        /// Parallel options that is used during entities processing. 
+        /// If is <see langword="null"/>, entities is processed sequentially
+        /// </summary>
+        public ParallelOptions EntitiesParallelOptions { get; set; } = new ParallelOptions() { MaxDegreeOfParallelism = -1 };
+
+        /// <summary>
+        /// Parallel options that is used during subscriber invoking. 
+        /// If is <see langword="null"/>, subscribers are invoked sequentially in order of subscribing
+        /// </summary>
+        public ParallelOptions SubscribersParallelOptions { get; set; } = null;
 
         /// <summary>
         /// Required number of entities to begin simulation
@@ -145,6 +154,11 @@ namespace Mechanix
             {
                 while (tickWhilePredicate(this)) UpdateEntities();
             }
+            catch (Exception e) when (!(e is AggregateException)) 
+            {
+                //Seq loop was used, so we should wrap exception into Aggregate
+                throw new AggregateException(e);
+            }
             finally
             {
                 _isLocked = false;
@@ -167,6 +181,11 @@ namespace Mechanix
             {
                 ulong count = (ulong)Math.Round(timeSpan / TimePerTick);
                 for (ulong t = 0; t < count; t++) UpdateEntities();
+            }
+            catch (Exception e) when (!(e is AggregateException))
+            {
+                //Seq loop was used, so we should wrap exception into Aggregate
+                throw new AggregateException(e);
             }
             finally
             {
@@ -201,6 +220,11 @@ namespace Mechanix
                     UpdateEntities();
                 }
             }
+            catch (Exception e) when (!(e is AggregateException))
+            {
+                //Seq loop was used, so we should wrap exception into Aggregate
+                throw new AggregateException(e);
+            }
             finally
             {
                 _isLocked = false;
@@ -225,6 +249,11 @@ namespace Mechanix
             {
                 UpdateEntities();
             }
+            catch (Exception e) when (!(e is AggregateException))
+            {
+                //Seq loop was used, so we should wrap exception into Aggregate
+                throw new AggregateException(e);
+            }
             finally
             {
                 _isLocked = false;
@@ -236,40 +265,67 @@ namespace Mechanix
         void UpdateEntities()
         {
             var count = Capacity;
-            Parallel.For
-            (
-                0,
-                count,
-                EntitiesParallelOptions,
-                c =>
+
+            if (EntitiesParallelOptions is null)
+            {
+                for (int c = 0; c < count; ++c)
                 {
                     for (int i = 0; i < _forceValues[c].Length; ++i)
                     {
                         _forceValues[c][i] = _forceEvaluationLaws[c][i].Invoke(this);
                     }
                 }
-            );
-            Parallel.For
-            (
-                0,
-                count,
-                EntitiesParallelOptions,
-                c =>
+                for (int c = 0; c < count; ++c)
                 {
                     _entities[c] = _entities[c].Next(TimePerTick, _forceValues[c]);
                 }
-            );
+            }
+            else
+            {
+                Parallel.For
+                (
+                    0,
+                    count,
+                    EntitiesParallelOptions,
+                    c =>
+                    {
+                        for (int i = 0; i < _forceValues[c].Length; ++i)
+                        {
+                            _forceValues[c][i] = _forceEvaluationLaws[c][i].Invoke(this);
+                        }
+                    }
+                );
+                Parallel.For
+                (
+                    0,
+                    count,
+                    EntitiesParallelOptions,
+                    c =>
+                    {
+                        _entities[c] = _entities[c].Next(TimePerTick, _forceValues[c]);
+                    }
+                );
+            }
 
             Ticks++;
 
             if (OnTick is null) return;
-            var subscribers = OnTick.GetInvocationList();
-            Parallel.ForEach
-            (
-                subscribers,
-                SubscribersParallelOptions,
-                sub => ((EventHandler)sub).Invoke(this, EventArgs.Empty)
-            );
+
+            if (SubscribersParallelOptions is null)
+            {
+                OnTick.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                //TODO: remove calling of GetInvokationList, because it requires array allocating in heap 
+                var subscribers = OnTick.GetInvocationList();
+                Parallel.ForEach
+                (
+                    subscribers,
+                    SubscribersParallelOptions,
+                    sub => ((EventHandler)sub).Invoke(this, EventArgs.Empty)
+                );
+            }
         }
 
         public bool ContainsKey(TEntityKey key)

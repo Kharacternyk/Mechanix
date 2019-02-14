@@ -61,7 +61,7 @@ namespace Mechanix.Test
         public void TestTickSequential()
         {
             var context = new PhysicalContext<int>(0.23, 1);
-            context.EntitiesParallelOptions.MaxDegreeOfParallelism = 1;
+            context.EntitiesParallelOptions = null;
 
             var entity = new PointMass
             (
