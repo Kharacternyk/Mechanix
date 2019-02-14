@@ -22,7 +22,7 @@ namespace Mechanix
         /// Parallel options that is used during entities processing. 
         /// If is <see langword="null"/>, entities is processed sequentially
         /// </summary>
-        public ParallelOptions EntitiesParallelOptions { get; set; } = new ParallelOptions() { MaxDegreeOfParallelism = -1 };
+        public ParallelOptions EntitiesParallelOptions { get; set; } = null;
 
         /// <summary>
         /// Parallel options that is used during subscriber invoking. 
