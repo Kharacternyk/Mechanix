@@ -312,34 +312,33 @@ namespace Mechanix
                     _forceValues[2][c] = force.ZComponent;
                 }
 
-                int lastC = 0;
+                int lastHandledIndex = 0;
 
-                for (int c = 0; c + Vector<double>.Count < count; c += Vector<double>.Count)
+                for (; lastHandledIndex + Vector<double>.Count < count; lastHandledIndex += Vector<double>.Count)
                 {
                     for (int axis = 0; axis < 3; ++axis)
                     {
-                        Vector<double> accelerations = new Vector<double>(_forceValues[axis], c);
-                        Vector<double> masses = new Vector<double>(_masses, c);
+                        Vector<double> accelerations = new Vector<double>(_forceValues[axis], lastHandledIndex);
+                        Vector<double> masses = new Vector<double>(_masses, lastHandledIndex);
                         accelerations /= masses;
 
-                        Vector<double> velocities = new Vector<double>(_velocities[axis], c);
-                        Vector<double> positions = new Vector<double>(_positions[axis], c);
+                        Vector<double> velocities = new Vector<double>(_velocities[axis], lastHandledIndex);
+                        Vector<double> positions = new Vector<double>(_positions[axis], lastHandledIndex);
 
                         positions += (velocities * TimePerTick);
                         velocities += (accelerations * TimePerTick);
 
-                        positions.CopyTo(_positions[axis], c);
-                        velocities.CopyTo(_velocities[axis], c);
+                        positions.CopyTo(_positions[axis], lastHandledIndex);
+                        velocities.CopyTo(_velocities[axis], lastHandledIndex);
                     }
-                    lastC = c;
                 }
 
-                for (int c = lastC; c < count; ++c)
+                for (int c = lastHandledIndex; c < count; ++c)
                 {
                     for (int axis = 0; axis < 3; ++axis)
                     {
-                        _velocities[axis][c] += _forceValues[axis][c] / _masses[c] * TimePerTick;
                         _positions[axis][c] += _velocities[axis][c] * TimePerTick;
+                        _velocities[axis][c] += _forceValues[axis][c] / _masses[c] * TimePerTick;
                     }
                 }
 
@@ -388,8 +387,8 @@ namespace Mechanix
                 {
                     for (int axis = 0; axis < 3; ++axis)
                     {
-                        _velocities[axis][c] += _forceValues[axis][c] / _masses[c] * TimePerTick;
                         _positions[axis][c] += _velocities[axis][c] * TimePerTick;
+                        _velocities[axis][c] += _forceValues[axis][c] / _masses[c] * TimePerTick;
                     }
                 }
             }
