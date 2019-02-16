@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Runtime.CompilerServices;
+using System.Numerics;
 
 namespace Mechanix
 {
@@ -12,9 +13,12 @@ namespace Mechanix
     /// <typeparam name="TEntityKey"></typeparam>
     public class PhysicalContext<TEntityKey> : IEnumerable<KeyValuePair<TEntityKey, PointMass>>
     {
-        readonly PointMass[] _entities;
+        readonly double[][] _forceValues = new double[3][];
+        readonly double[][] _velocities = new double[3][];
+        readonly double[][] _positions = new double[3][];
+        readonly double[] _masses;
+
         readonly Func<PhysicalContext<TEntityKey>, Force>[][] _forceEvaluationLaws;
-        readonly Force[][] _forceValues;
         readonly Dictionary<TEntityKey, int> _indexes;
         bool _isLocked;
 
@@ -70,9 +74,15 @@ namespace Mechanix
         {
             get
             {
-                for (int i = 0; i < _indexes.Count; ++i)
+                for (int axis = 0; axis < _indexes.Count; ++axis)
                 {
-                    yield return _entities[i];
+                    yield return new PointMass
+                    (
+                        new AxisStatus(_positions[0][axis], _velocities[0][axis]),
+                        new AxisStatus(_positions[1][axis], _velocities[1][axis]),
+                        new AxisStatus(_positions[2][axis], _velocities[2][axis]),
+                        _masses[axis]
+                    );
                 }
                 yield break;
             }
@@ -86,13 +96,20 @@ namespace Mechanix
         /// <exception cref="UnexistingEntityException{TEntityKey}">
         /// Throws, if entity with this key hasn't been added to this context yet
         /// </exception>
-        public ref readonly PointMass this[TEntityKey entityKey]
+        public PointMass this[TEntityKey entityKey]
         {
             get
             {
                 try
                 {
-                    return ref _entities[_indexes[entityKey]];
+                    int i = _indexes[entityKey];
+                    return new PointMass
+                    (
+                        new AxisStatus(_positions[0][i], _velocities[0][i]),
+                        new AxisStatus(_positions[1][i], _velocities[1][i]),
+                        new AxisStatus(_positions[2][i], _velocities[2][i]),
+                        _masses[i]
+                    );
                 }
                 catch (KeyNotFoundException)
                 {
@@ -110,9 +127,16 @@ namespace Mechanix
             TimePerTick = timePerTick;
             Ticks = 0;
             _indexes = new Dictionary<TEntityKey, int>(capacity);
-            _forceValues = new Force[capacity][];
-            _entities = new PointMass[capacity];
             _forceEvaluationLaws = new Func<PhysicalContext<TEntityKey>, Force>[capacity][];
+
+            for (int axis = 0; axis < 3; ++axis)
+            {
+                _forceValues[axis] = new double[capacity];
+                _positions[axis] = new double[capacity];
+                _velocities[axis] = new double[capacity];
+            }
+            _masses = new double[capacity];
+
             _isLocked = false;
             IsFilled = false;
         }
@@ -126,9 +150,17 @@ namespace Mechanix
 
             var index = _indexes.Count;
 
-            _entities[index] = entity;
             _forceEvaluationLaws[index] = (Func<PhysicalContext<TEntityKey>, Force>[])forceEvaluationLaws.Clone();
-            _forceValues[index] = new Force[forceEvaluationLaws.Length];
+
+            _positions[0][index] = entity.X.Position;
+            _positions[1][index] = entity.Y.Position;
+            _positions[2][index] = entity.Z.Position;
+
+            _velocities[0][index] = entity.X.Velocity;
+            _velocities[1][index] = entity.Y.Velocity;
+            _velocities[2][index] = entity.Z.Velocity;
+
+            _masses[index] = entity.Mass;
 
             _indexes.Add(key, index);
             if (_indexes.Count == Capacity) IsFilled = true;
@@ -270,15 +302,47 @@ namespace Mechanix
             {
                 for (int c = 0; c < count; ++c)
                 {
-                    for (int i = 0; i < _forceValues[c].Length; ++i)
+                    Force force = Force.Zero;
+                    for (int i = 0; i < _forceEvaluationLaws[c].Length; ++i)
                     {
-                        _forceValues[c][i] = _forceEvaluationLaws[c][i].Invoke(this);
+                        force += _forceEvaluationLaws[c][i].Invoke(this);
+                    }
+                    _forceValues[0][c] = force.XComponent;
+                    _forceValues[1][c] = force.YComponent;
+                    _forceValues[2][c] = force.ZComponent;
+                }
+
+                int lastC = 0;
+
+                for (int c = 0; c + Vector<double>.Count < count; c += Vector<double>.Count)
+                {
+                    for (int axis = 0; axis < 3; ++axis)
+                    {
+                        Vector<double> accelerations = new Vector<double>(_forceValues[axis], c);
+                        Vector<double> masses = new Vector<double>(_masses, c);
+                        accelerations /= masses;
+
+                        Vector<double> velocities = new Vector<double>(_velocities[axis], c);
+                        Vector<double> positions = new Vector<double>(_positions[axis], c);
+
+                        positions += (velocities * TimePerTick);
+                        velocities += (accelerations * TimePerTick);
+
+                        positions.CopyTo(_positions[axis], c);
+                        velocities.CopyTo(_velocities[axis], c);
+                    }
+                    lastC = c;
+                }
+
+                for (int c = lastC; c < count; ++c)
+                {
+                    for (int axis = 0; axis < 3; ++axis)
+                    {
+                        _velocities[axis][c] += _forceValues[axis][c] / _masses[c] * TimePerTick;
+                        _positions[axis][c] += _velocities[axis][c] * TimePerTick;
                     }
                 }
-                for (int c = 0; c < count; ++c)
-                {
-                    _entities[c] = _entities[c].Next(TimePerTick, _forceValues[c]);
-                }
+
             }
             else
             {
@@ -289,22 +353,45 @@ namespace Mechanix
                     EntitiesParallelOptions,
                     c =>
                     {
+                        Force force = Force.Zero;
                         for (int i = 0; i < _forceValues[c].Length; ++i)
                         {
-                            _forceValues[c][i] = _forceEvaluationLaws[c][i].Invoke(this);
+                            force += _forceEvaluationLaws[c][i].Invoke(this);
                         }
+                        _forceValues[0][c] = force.XComponent;
+                        _forceValues[1][c] = force.YComponent;
+                        _forceValues[2][c] = force.ZComponent;
                     }
                 );
-                Parallel.For
-                (
-                    0,
-                    count,
-                    EntitiesParallelOptions,
-                    c =>
+                //TODO: parallel
+                int lastC = 0;
+                for (int c = 0; c < count; c += Vector<double>.Count)
+                {
+                    for (int axis = 0; axis < 3; ++axis)
                     {
-                        _entities[c] = _entities[c].Next(TimePerTick, _forceValues[c]);
+                        Vector<double> accelerations = new Vector<double>(_forceValues[axis], c);
+                        Vector<double> masses = new Vector<double>(_masses, c);
+                        accelerations /= masses;
+
+                        Vector<double> velocities = new Vector<double>(_velocities[axis], c);
+                        Vector<double> positions = new Vector<double>(_positions[axis], c);
+
+                        velocities += (accelerations * TimePerTick);
+                        positions += (velocities * TimePerTick);
+
+                        positions.CopyTo(_positions[axis], c);
+                        velocities.CopyTo(_velocities[axis], c);
                     }
-                );
+                    lastC = c;
+                }
+                for (int c = lastC; c < count; ++c)
+                {
+                    for (int axis = 0; axis < 3; ++axis)
+                    {
+                        _velocities[axis][c] += _forceValues[axis][c] / _masses[c] * TimePerTick;
+                        _positions[axis][c] += _velocities[axis][c] * TimePerTick;
+                    }
+                }
             }
 
             Ticks++;
@@ -337,7 +424,7 @@ namespace Mechanix
         {
             foreach (var key in Keys)
             {
-                yield return new KeyValuePair<TEntityKey, PointMass>(key, _entities[_indexes[key]]);
+                yield return new KeyValuePair<TEntityKey, PointMass>(key, this[key]);
             }
         }
 
