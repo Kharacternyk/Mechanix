@@ -83,23 +83,7 @@ namespace Mechanix
         /// <summary>
         /// A <see cref="PointMass"/> entity with key <paramref name="entityKey"/>
         /// </summary>
-        /// <exception cref="UnexistingEntityException{TEntityKey}">
-        /// Throws, if entity with this key hasn't been added to this context yet
-        /// </exception>
-        public ref readonly PointMass this[TEntityKey entityKey]
-        {
-            get
-            {
-                try
-                {
-                    return ref _entities[_indexes[entityKey]];
-                }
-                catch (KeyNotFoundException)
-                {
-                    throw new UnexistingEntityException<TEntityKey>(this, entityKey);
-                }
-            }
-        }
+        public ref readonly PointMass this[TEntityKey entityKey] => ref _entities[_indexes[entityKey]];
 
         public PhysicalContext(double timePerTick, int capacity)
         {
