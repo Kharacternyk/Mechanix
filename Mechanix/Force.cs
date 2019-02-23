@@ -35,7 +35,7 @@ namespace Mechanix
             ZComponent = zComponent;
         }
 
-        public Force Substract(in Force force)
+        public Force Substract(Force force)
         {
             return new Force
             (
@@ -45,7 +45,7 @@ namespace Mechanix
             );
         }
 
-        public Force Add(in Force force)
+        public Force Add(Force force)
         {
             return new Force
             (
@@ -72,10 +72,9 @@ namespace Mechanix
 
         public bool Equals(Force other)
         {
-            return XComponent == other.XComponent &&
-                   YComponent == other.YComponent &&
-                   ZComponent == other.ZComponent &&
-                   Value == other.Value;
+            return XComponent.Equals(other.XComponent) &&
+                   YComponent.Equals(other.YComponent) &&
+                   ZComponent.Equals(other.ZComponent);
         }
 
         public override int GetHashCode()
@@ -103,22 +102,22 @@ namespace Mechanix
             return !(force1 == force2);
         }
 
-        public static Force operator -(in Force force)
+        public static Force operator -(Force force)
         {
             return force.Multiply(-1);
         }
 
-        public static Force operator -(in Force force1, in Force force2)
+        public static Force operator -(Force force1, Force force2)
         {
             return force1.Substract(force2);
         }
 
-        public static Force operator +(in Force force1, in Force force2)
+        public static Force operator +(Force force1, Force force2)
         {
             return force1.Add(force2);
         }
 
-        public static Force operator *(in Force force1, double number)
+        public static Force operator *(Force force1, double number)
         {
             return force1.Multiply(number);
         }

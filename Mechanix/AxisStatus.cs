@@ -24,8 +24,8 @@ namespace Mechanix
 
         public bool Equals(AxisStatus other)
         {
-            return Position == other.Position &&
-                   Velocity == other.Velocity;
+            return Position.Equals(other.Position) &&
+                   Velocity.Equals(other.Velocity);
         }
 
         public override int GetHashCode()

@@ -20,7 +20,7 @@ namespace Mechanix
             get => Math.Sqrt(X.Velocity * X.Velocity + Y.Velocity * Y.Velocity + Z.Velocity * Z.Velocity);
         }
 
-        public PointMass(in AxisStatus x, in AxisStatus y, in AxisStatus z, double mass)
+        public PointMass(AxisStatus x, AxisStatus y, AxisStatus z, double mass)
         {
             X = x;
             Y = y;
@@ -83,7 +83,7 @@ namespace Mechanix
             return X.Equals(other.X) &&
                    Y.Equals(other.Y) &&
                    Z.Equals(other.Z) &&
-                   Mass == other.Mass;
+                   Mass.Equals(other.Mass);
         }
 
         public override int GetHashCode()

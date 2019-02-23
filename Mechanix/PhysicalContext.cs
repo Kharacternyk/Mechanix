@@ -104,7 +104,7 @@ namespace Mechanix
         /// <summary>
         /// Adds <see cref="PointMass"/> entity to this context and binds some force evaluation laws that affect it
         /// </summary>
-        public void AddEntity(TEntityKey key, in PointMass entity, params Func<PhysicalContext<TEntityKey>, Force>[] forceEvaluationLaws)
+        public void AddEntity(TEntityKey key, PointMass entity, params Func<PhysicalContext<TEntityKey>, Force>[] forceEvaluationLaws)
         {
             if (IsFilled) throw new FilledPhysicalContextException<TEntityKey>(this);
 
