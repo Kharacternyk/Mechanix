@@ -38,8 +38,8 @@ namespace Mechanix
 
         /// <summary>
         /// Returns <see cref="PointMass"/> entity, 
-        /// that represents this entity after a period of time
-        ///  <paramref name="dt"/> and forces <paramref name="forcesAttached"/>.
+        /// that represents this entity after the period of time
+        ///  <paramref name="dt"/> and the forces <paramref name="forcesAttached"/>.
         /// </summary>
         /// <param name="dt">
         /// A period of time, during that all components are considered
